@@ -20,3 +20,6 @@ class AdminField(admin.ModelAdmin):
 @admin.register(Job)
 class AdminJob(admin.ModelAdmin):
     prepopulated_fields = {"slug":('name',)}
+
+
+

@@ -17,6 +17,10 @@ from django.contrib.auth.models import User
 
 
 
+
+
+
+
 class Category(models.Model):
 
 
