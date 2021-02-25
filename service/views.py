@@ -45,6 +45,7 @@ def job_list_api(request):
 def user_signup(request):
     serializer = UserSerializer(data=request.data)
 
+    
     if serializer.is_valid():
         user = serializer.create(validated_data=request.data)
         return Response(serializer.data,status=status.HTTP_201_CREATED)

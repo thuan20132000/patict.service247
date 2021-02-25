@@ -21,8 +21,11 @@ def category_list(request):
 
 @api_view(['POST'])
 def signup(request):
+   
     serializer = UserSerializer(data=request.data)
-    
+
+
+
     if serializer.is_valid():
         user = serializer.create(validated_data=request.data)
         user.save()
@@ -30,6 +33,6 @@ def signup(request):
             "user": UserSerializer(user).data,
             "message": "User Created Successfully.  Now perform Login to get your token",
         })
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 

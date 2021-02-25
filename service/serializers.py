@@ -39,12 +39,18 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
 class UserSerializer(serializers.ModelSerializer):
+
+    email = serializers.EmailField(required=True)
+
 
     class Meta:
         model = User
         fields = '__all__'
-
+        
     def create(self,validated_data):
         user = User(
             email=validated_data['email'],
@@ -60,6 +66,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email',instance.email)
         instance.save()
         return instance
+
 
 
 
