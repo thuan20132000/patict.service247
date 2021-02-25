@@ -30,6 +30,7 @@ def signup(request):
         user = serializer.create(validated_data=request.data)
         user.save()
         return Response({
+            "status":True,
             "user": UserSerializer(user).data,
             "message": "User Created Successfully.  Now perform Login to get your token",
         })
