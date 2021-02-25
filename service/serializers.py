@@ -41,16 +41,11 @@ class JobSerializer(serializers.ModelSerializer):
 
 
 
-
-class UserSerializer(serializers.ModelSerializer):
-
-    email = serializers.EmailField(required=True)
-
-
+class UserSingupSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-        
+
     def create(self,validated_data):
         user = User(
             email=validated_data['email'],
@@ -60,6 +55,18 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         return user
 
+
+
+class UserSerializer(serializers.Serializer):
+
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+
+    class Meta:
+        model = User
+        fields = '__all__'
+        
 
     def update(self,instance,validated_data):
         instance.username = validated_data.get('username',instance.username)
