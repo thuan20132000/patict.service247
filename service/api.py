@@ -36,7 +36,7 @@ def signup(request):
 
     return Response({
         "status":False,
-        "error_messages":serializer.error_messages
+        "error_messages":serializer.errors
     })
 
 def login(request):
