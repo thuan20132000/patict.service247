@@ -34,5 +34,12 @@ def signup(request):
             "message": "User Created Successfully.  Now perform Login to get your token",
         })
 
-    return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    return Response({
+        "status":False,
+        "error_messages":serializer.error_messages
+    })
 
+def login(request):
+
+    serialize = UserSerializer(data=request.data)
+    
