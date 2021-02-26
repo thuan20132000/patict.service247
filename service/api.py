@@ -1,6 +1,7 @@
 
 from rest_framework.response import Response
 from .serializers import UserSerializer
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from rest_framework.permissions  import AllowAny,IsAuthenticated
@@ -120,6 +121,28 @@ def category_list_api(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def category_detail_api(request,category_slug=None):
+    
+    if category_slug:
+        category = get_object_or_404(Category,slug=category_slug)
+    
+        print("cat: ",category.image)
+
+        serializer = CategorySerializer(category)
+        return Response({
+            "status":True,
+            "category":serializer.data
+        })
+
+    return Response({
+        "status":False,
+        "category":None
+    })
+
+
+
+
 
 @api_view(['GET'])
 def field_list_api(request):
@@ -127,6 +150,8 @@ def field_list_api(request):
     serializer = FieldSerializer(fields,many=True)
 
     return Response(serializer.data)
+
+
 
 
 

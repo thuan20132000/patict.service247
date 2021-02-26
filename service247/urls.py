@@ -22,6 +22,8 @@ from rest_framework.documentation import  include_docs_urls
 from rest_framework.authtoken import views
 schema_view = get_schema_view(title="Service API")
 from service.api import signup,signin
+from django.conf import settings
+from django.conf.urls.static import static
 
 from rest_framework_simplejwt.views import TokenObtainPairView,TokenRefreshView
 
@@ -38,4 +40,4 @@ urlpatterns = [
     path('api/v1/signup',signup),
     path('api/v1/signin',signin),
     
-]
+] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

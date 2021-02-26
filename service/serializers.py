@@ -1,11 +1,10 @@
 from rest_framework import serializers
 from .models import Category,Field,Job,User
-
+from django.conf import settings
 
 
 class CategorySerializer(serializers.ModelSerializer):
     
-
 
 
     class Meta:
@@ -14,7 +13,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 
-
+        
 
 
 class FieldSerializer(serializers.ModelSerializer):

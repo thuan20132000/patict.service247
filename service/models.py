@@ -44,6 +44,7 @@ class Category(models.Model):
 
 
 
+
 class Field(models.Model):
     STATUS_CHOICE = (
         ('published','PUBLISHED'),
