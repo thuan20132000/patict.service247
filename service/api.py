@@ -8,12 +8,20 @@ from rest_framework.permissions  import AllowAny,IsAuthenticated
 
 from .models import User,Category,Job,Field
 
-from .serializers import CategorySerializer,FieldSerializer,JobSerializer,UserSerializer,UserSingupSerializer
+from .serializers import CategorySerializer,FieldSerializer,JobSerializer,UserSerializer,UserSingupSerializer,JobPaginationCustom
 import json
 from django.core.serializers import serialize
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate,login
 from rest_framework.renderers import JSONRenderer
+
+from rest_framework.pagination import PageNumberPagination
+
+from django.core.paginator import Paginator
+
+
+
+
 
 def get_token_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -155,12 +163,6 @@ def field_list_api(request):
 
 
 
-@api_view(['GET'])
-def job_list_api(request):
-    jobs = Job.objects.all()
-    serializer = JobSerializer(jobs,many=True)
-
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -170,3 +172,36 @@ def customer_list_api(request):
 
     return Response(serializer.data)
 
+
+
+
+
+
+# Job API
+
+@api_view(['GET'])
+def job_suggestion_api(request):
+    job = Job.objects.all()
+    serializer = JobSerializer
+    
+
+@api_view(['GET'])
+def job_list_api(request):
+
+    page = request.query_params.get('page')
+    page_limit = request.query_params.get('limit')
+
+    paginator = JobPaginationCustom()
+    paginator.page_size = 10
+
+    if page_limit is not None:
+        paginator.page_size = int(page_limit)
+
+    query_set = Job.objects.filter(status='published').order_by('-created_at')
+    context = paginator.paginate_queryset(query_set,request)
+    serializer = JobSerializer(context,many=True)
+
+    return Response(
+        paginator.get_paginated_response(serializer.data)
+    )
+    
