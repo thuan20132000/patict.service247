@@ -5,15 +5,12 @@ from rest_framework.pagination import PageNumberPagination,BasePagination
 
 class CategorySerializer(serializers.ModelSerializer):
     
-
-
     class Meta:
         model = Category
         fields = ['id','name','image','status','slug']
 
 
-
-        
+  
 
 
 class FieldSerializer(serializers.ModelSerializer):
@@ -32,7 +29,7 @@ class JobSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Job
-        fields  = ['id','name','images','status','descriptions','suggestion_price','author','field']
+        fields  = ['id','name','images','status','descriptions','suggestion_price','author','field','created_at']
 
 
 

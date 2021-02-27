@@ -40,4 +40,6 @@ urlpatterns = [
     path('api/v1/signup',signup),
     path('api/v1/signin',signin),
     
-] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+] 
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

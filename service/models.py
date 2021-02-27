@@ -33,7 +33,7 @@ class Category(models.Model):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200,unique=True)
 
-    image = models.ImageField(upload_to='upload/',blank=True)
+    image = models.ImageField(upload_to='upload/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')

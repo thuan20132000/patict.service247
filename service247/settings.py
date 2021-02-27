@@ -27,7 +27,7 @@ SECRET_KEY = 'jk+p+#=7^h%kov(*m^=l(!v*j^ason#%e39t9r&pcb(*&*o7hg'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -165,7 +165,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static/')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR,"media")
 
 # SET JWT TOKEN LIFETIME
 SIMPLE_JWT = {

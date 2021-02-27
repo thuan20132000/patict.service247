@@ -19,6 +19,7 @@ from rest_framework.pagination import PageNumberPagination
 
 from django.core.paginator import Paginator
 
+from django.core.exceptions import ObjectDoesNotExist
 
 
 
@@ -120,7 +121,7 @@ def signin(request):
 
 
 
-
+# Category API
 @api_view(['GET'])
 def category_list_api(request):
     category = Category.objects.all()
@@ -135,8 +136,6 @@ def category_detail_api(request,category_slug=None):
     if category_slug:
         category = get_object_or_404(Category,slug=category_slug)
     
-        print("cat: ",category.image)
-
         serializer = CategorySerializer(category)
         return Response({
             "status":True,
@@ -150,8 +149,7 @@ def category_detail_api(request,category_slug=None):
 
 
 
-
-
+# Field API
 @api_view(['GET'])
 def field_list_api(request):
     fields = Field.objects.all()
@@ -190,12 +188,49 @@ def job_list_api(request):
 
     page = request.query_params.get('page')
     page_limit = request.query_params.get('limit')
+    category_slug = request.query_params.get('category_slug')
+    field_slug = request.query_params.get('field_slug')
 
     paginator = JobPaginationCustom()
     paginator.page_size = 10
 
     if page_limit is not None:
         paginator.page_size = int(page_limit)
+    
+    if category_slug is not None:
+        try:
+            cat = Category.objects.get(slug=category_slug)
+            fields = cat.fields.all()
+            jobs = Job.objects.filter(field__in=fields,status='published').order_by('-created_at').all()
+            context = paginator.paginate_queryset(jobs,request)
+            serializer = JobSerializer(context,many=True)
+            return Response(
+                paginator.get_paginated_response(serializer.data)
+            )
+
+        except Category.DoesNotExist:
+            return Response({
+                "status":False,
+                "message":"Category is not exists"
+            })
+
+    if field_slug is not None:
+        try:
+            field = Field.objects.get(slug=field_slug)
+            jobs = Job.objects.filter(field=field,status='published').order_by('-created_at').all()
+            context = paginator.paginate_queryset(jobs,request)
+            serializer = JobSerializer(context,many=True)
+
+            return Response(paginator.get_paginated_response(serializer.data))
+
+
+        except Field.DoesNotExist:
+            return Response({
+                "status":False,
+                "message":"Field is not exists"
+            })
+
+       
 
     query_set = Job.objects.filter(status='published').order_by('-created_at')
     context = paginator.paginate_queryset(query_set,request)
