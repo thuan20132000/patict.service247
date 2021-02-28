@@ -6,16 +6,6 @@ from django.contrib.auth.models import User
 
 
 
-# class Image(models.Model):
-#     STATUS_CHOICE = (
-#         ('published','PUBLISHED'),
-#         ('draft','DRAFT'),
-#     )
-
-#     image_url = models.TextField()
-#     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
-
-
 
 
 
@@ -89,7 +79,7 @@ class Job(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='jobs'
+        related_name='jobs',
     )
 
     field = models.ForeignKey(
@@ -162,3 +152,17 @@ class Review(models.Model):
 
     def __str__(self,):
         return self.review_content
+
+
+
+class Image(models.Model):
+    STATUS_CHOICE = (
+        ('published','PUBLISHED'),
+        ('draft','DRAFT'),
+    )
+
+    image = models.ImageField(upload_to='upload/')
+
+    status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
+
+

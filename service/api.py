@@ -6,9 +6,19 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from rest_framework.permissions  import AllowAny,IsAuthenticated
 
-from .models import User,Category,Job,Field
+from .models import User,Category,Job,Field,Image
+from django.utils.text import slugify
+from .serializers import (
+    CategorySerializer,
+    FieldSerializer,
+    JobSerializer,
+    UserSerializer,
+    UserSingupSerializer,
+    JobPaginationCustom,
+    AuthorSerializer,
+    ImageSerializer
+)
 
-from .serializers import CategorySerializer,FieldSerializer,JobSerializer,UserSerializer,UserSingupSerializer,JobPaginationCustom
 import json
 from django.core.serializers import serialize
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -240,3 +250,139 @@ def job_list_api(request):
         paginator.get_paginated_response(serializer.data)
     )
     
+
+@api_view(['GET'])
+def job_detail_api(request,job_slug=None):
+
+
+    if job_slug is not None:
+        try:
+            job = Job.objects.get(slug=job_slug,status='published')
+            serializer = JobSerializer(job)
+            
+            return Response({
+                "status":True,
+                "data":serializer.data
+            })
+
+        except Job.DoesNotExist:
+            return Response({
+                "status":False,
+                "data":None
+            })
+
+    
+    return Response({
+                "status":False,
+                "data":None
+            })
+
+
+@api_view(['POST'])
+def job_post_api(request):
+    
+        try:
+
+
+
+            data = request.data
+            images = list()
+
+            if data.get('images'):
+                for image in data.pop('images'):
+                    image = Image.objects.create(image=image)
+                    images.append(ImageSerializer(image).data)    
+            job = Job()
+            serializer = JobSerializer(job,data=data)
+          
+
+            if serializer.is_valid():
+                job.slug = slugify(data.get('name'))
+                job.name = data.get('name')
+                job.suggestion_price = data.get('suggestion_price')
+                job.author_id = data.get('author_id')
+                job.field_id = data.get('field_id')
+                job.images = images
+                job.descriptions = data.get('descriptions')
+                job.save()
+                return Response({
+                    "status":True,
+                    "data":JobSerializer(job).data
+                })
+
+            return Response({
+                "message":serializer.errors
+            })
+        except Exception as e:
+            print('error: ',e)
+            return Response({
+                "status":False,
+                "data":None,
+                "message":"Please enter full of input field_id,author_id"
+
+            })
+
+
+
+@api_view(['PUT'])
+def job_update_api(request,job_id):
+    
+        try:
+
+            data = request.data
+            images = list()
+
+            job = Job.objects.get(id=job_id)
+
+            if data.get('images'):
+                for image in data.pop('images'):
+                    image = Image.objects.create(image=image)
+                    images.append(ImageSerializer(image).data)
+                job.images = images
+
+            job.name = data.get('name') or job.name
+            job.slug = slugify(job.name)
+            job.suggestion_price = data.get('suggestion_price') or job.suggestion_price
+            job.field_id = data.get('field_id') or job.field_id
+            job.descriptions = data.get('descriptions') or job.descriptions
+            job.save()
+            serializer = JobSerializer(job)
+          
+
+         
+            return Response({
+                "status":False,
+                "data":serializer.data
+            })
+        except Exception as e:
+            print('error: ',e)
+            return Response({
+                "status":False,
+                "data":None,
+                "message":"Please enter full of input field_id,author_id"
+
+            })
+
+
+
+@api_view(['DELETE'])
+def job_delete_api(self,job_id):
+
+
+    try:
+        job = Job.objects.get(id=job_id)
+        job.delete()
+
+        return Response({
+            "status":True,
+            "data":None,
+            "message":"Delete successfully"
+        })
+    except Exception as e:
+         
+        return Response({
+            "status":False,
+            "data":None,
+            "message":"Delete Failed"
+        
+        })
