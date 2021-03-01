@@ -482,12 +482,10 @@ def job_filter_api(request):
         if jobs_filtered is not None:
             context = paginator.paginate_queryset(jobs_filtered,request)
             serializer = JobSerializer(context,many=True)
-            print('filter: ',jobs_filtered)
             return Response(
                 paginator.get_paginated_response(serializer.data)
             )
         else:
-            print('not filter: ',jobs_filtered)
             return Response({
                 "status":False,
                 "data":None,
