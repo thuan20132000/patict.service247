@@ -287,13 +287,20 @@ def job_post_api(request):
 
             data = request.data
             images = list()
+            location = list()
 
             if data.get('images'):
                 for image in data.pop('images'):
                     image = Image.objects.create(image=image)
-                    images.append(ImageSerializer(image).data)    
+                    images.append(ImageSerializer(image).data)   
+            if data.get('location'):
+                location_str = data.get('location')
+                location = json.loads(location_str)
+
+
             job = Job()
             serializer = JobSerializer(job,data=data)
+            
           
 
             if serializer.is_valid():
@@ -304,7 +311,9 @@ def job_post_api(request):
                 job.field_id = data.get('field_id')
                 job.images = images
                 job.descriptions = data.get('descriptions')
+                job.location = location
                 job.save()
+                
                 return Response({
                     "status":True,
                     "data":JobSerializer(job).data
@@ -351,7 +360,7 @@ def job_update_api(request,job_id):
 
          
             return Response({
-                "status":False,
+                "status":True,
                 "data":serializer.data
             })
         except Exception as e:

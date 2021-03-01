@@ -83,7 +83,7 @@ class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
         depth = 1
-        fields  = ['id','name','slug','images','status','descriptions','suggestion_price','author','field','created_at']
+        fields  = ['id','name','slug','images','location','status','descriptions','suggestion_price','author','field','created_at']
     
     def create(self,validated_data):
         job = Job()
@@ -119,6 +119,8 @@ class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = ['id','image','status']
+
+
 
 
 class JobPaginationCustom(PageNumberPagination):
