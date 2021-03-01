@@ -12,7 +12,9 @@ from .api import (
     job_detail_api,
     job_post_api,
     job_update_api,
-    job_delete_api
+    job_delete_api,
+    job_filter_api,
+    job_search_api
 )
 
 app_name = 'service'
@@ -26,7 +28,10 @@ urlpatterns = [
     path('api/v1/job',job_post_api,name='job_post_api'),
     path('api/v1/job/<int:job_id>',job_update_api,name='job_update_api'),
     path('api/v1/job/<int:job_id>/delete',job_delete_api,name='job_delete_api'),
+    path('api/v1/job/filter',job_filter_api,name='job_filter_api'),
+    path('api/v1/job/search',job_search_api,name='job_search_api'),
     path('api/v1/customers',customer_list_api,name='customer_list_api'),
+
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
 

@@ -31,6 +31,8 @@ from django.core.paginator import Paginator
 
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.contrib.postgres.search import SearchQuery,SearchVector,SearchRank
+
 
 
 
@@ -340,6 +342,7 @@ def job_update_api(request,job_id):
 
             data = request.data
             images = list()
+            location = list()
 
             job = Job.objects.get(id=job_id)
 
@@ -349,11 +352,17 @@ def job_update_api(request,job_id):
                     images.append(ImageSerializer(image).data)
                 job.images = images
 
+
+            if data.get('location'):
+                location_str = data.get('location')
+                location = json.loads(location_str)
+
             job.name = data.get('name') or job.name
             job.slug = slugify(job.name)
             job.suggestion_price = data.get('suggestion_price') or job.suggestion_price
             job.field_id = data.get('field_id') or job.field_id
             job.descriptions = data.get('descriptions') or job.descriptions
+            job.location = location or job.location
             job.save()
             serializer = JobSerializer(job)
           
@@ -395,3 +404,136 @@ def job_delete_api(self,job_id):
             "message":"Delete Failed"
         
         })
+
+
+@api_view(['GET'])
+def job_filter_api(request):
+
+    try:
+        province_code = request.query_params.get('province_code')
+        district_code = request.query_params.get('district_code')
+        subdistrict_code = request.query_params.get('subdistrict_code')
+        field_id = request.query_params.get('field_id')
+
+        paginator = JobPaginationCustom()
+        paginator.page_size = 10
+        
+        if subdistrict_code and district_code and province_code:
+
+            if field_id :
+                jobs_filtered = Job.objects.filter(
+                    location__province_code__contains=province_code,
+                    location__district_code__contains=district_code,
+                    location__subdistrict_code__contains=subdistrict_code,
+                    status='published'
+                ).filter(field_id=field_id).all()
+            else:
+                jobs_filtered = Job.objects.filter(
+                    location__province_code__contains=province_code,
+                    location__district_code__contains=district_code,
+                    location__subdistrict_code__contains=subdistrict_code,
+                    status='published'
+                ).all()
+            
+
+        elif province_code and district_code:
+            
+            if field_id:
+                jobs_filtered = Job.objects.filter(
+                    location__province_code__contains=province_code,
+                    location__district_code__contains=district_code,
+                    status='published'
+                ).filter(field_id=field_id).all()
+            else:
+                jobs_filtered = Job.objects.filter(
+                    location__province_code__contains=province_code,
+                    location__district_code__contains=district_code,
+                    status='published'
+                ).all()
+
+        elif province_code:
+
+            if field_id:
+                jobs_filtered = Job.objects.filter(
+                    location__province_code__contains=province_code,
+                    status='published'
+                ).filter(field_id=field_id).all()
+            else:
+                jobs_filtered = Job.objects.filter(
+                    location__province_code__contains=province_code,
+                    status='published'
+                ).all()
+
+        
+        elif field_id:
+
+            jobs_filtered = Job.objects.filter(field_id=field_id,status='published').all()
+        
+        else:
+
+            jobs_filtered = None
+
+        
+
+       
+
+
+        #check jobs_filtered
+        if jobs_filtered is not None:
+            context = paginator.paginate_queryset(jobs_filtered,request)
+            serializer = JobSerializer(context,many=True)
+            print('filter: ',jobs_filtered)
+            return Response(
+                paginator.get_paginated_response(serializer.data)
+            )
+        else:
+            print('not filter: ',jobs_filtered)
+            return Response({
+                "status":False,
+                "data":None,
+                "message":"Not found any data"
+            })
+
+    except Exception as e :
+        print('error at: ',e)
+        return Response({
+            "status":False,
+            "data":None,
+            "message":"Filter Failed"
+        })
+
+
+
+@api_view(['GET'])
+def job_search_api(request):
+
+    try:
+
+        search_word = request.query_params.get('query')
+
+        search_vector = SearchVector('name','descriptions')
+        search_query = SearchQuery(search_word)
+        paginator = JobPaginationCustom()
+        paginator.page_size = 10
+
+        results = Job.objects.annotate(
+            search=search_vector,
+            rank=SearchRank(search_vector,search_query)
+        ).filter(search=search_query).order_by('-rank')
+
+        context = paginator.paginate_queryset(results,request)
+        serializer = JobSerializer(context,many=True)
+
+        return Response(
+            paginator.get_paginated_response(serializer.data)
+        )
+    except Exception as e:
+        print('error at: ',e)
+        return Response({
+            "status":False,
+            "data":None,
+            "message":"Search Failed"
+        })
+
+
+
