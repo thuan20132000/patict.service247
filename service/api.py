@@ -252,12 +252,12 @@ def job_list_api(request):
     
 
 @api_view(['GET'])
-def job_detail_api(request,job_slug=None):
+def job_detail_api(request,job_id=None):
 
 
-    if job_slug is not None:
+    if job_id is not None:
         try:
-            job = Job.objects.get(slug=job_slug,status='published')
+            job = Job.objects.get(id=job_id,status='published')
             serializer = JobSerializer(job)
             
             return Response({
