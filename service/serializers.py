@@ -22,7 +22,7 @@ class UserSingupSerializer(serializers.ModelSerializer):
 
 
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField()
     password = serializers.CharField()

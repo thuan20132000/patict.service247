@@ -90,10 +90,12 @@ def signin(request):
         serializer = UserSerializer(data=request.data)
      
         if serializer.is_valid():
-            username = serializer.validated_data.get('username')
-            password = serializer.validated_data.get('password')
+            username = request.data.get('username')
+            password = request.data.get('password')
             user = authenticate(username=username,password=password)
 
+
+            
             if user is not None:
                 
                 refresh = RefreshToken.for_user(user)
