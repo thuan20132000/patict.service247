@@ -168,7 +168,14 @@ def category_detail_api(request,category_slug=None):
 # Field API
 @api_view(['GET'])
 def field_list_api(request):
-    fields = Field.objects.all()
+
+    category_id = request.query_params.get('category_id')
+
+    if category_id is not None:
+        fields = Field.objects.filter(category__id=category_id)
+    else:
+        fields = Field.objects.all()
+        
     serializer = FieldSerializer(fields,many=True)
 
     return Response(serializer.data)
