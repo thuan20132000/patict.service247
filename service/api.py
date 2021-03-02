@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from rest_framework.permissions  import AllowAny,IsAuthenticated
 
-from .models import User,Category,Job,Field,Image
+from .models import User,Category,Job,Field,Image,JobCandidate
 from django.utils.text import slugify
 from .serializers import (
     CategorySerializer,
@@ -16,7 +16,9 @@ from .serializers import (
     UserSingupSerializer,
     JobPaginationCustom,
     AuthorSerializer,
-    ImageSerializer
+    ImageSerializer,
+    JobCandidateSerializer,
+    PaginationBaseCustom
 )
 
 import json
@@ -170,7 +172,13 @@ def field_list_api(request):
     return Response(serializer.data)
 
 
+@api_view(['GET'])
+def field_detail_api(request,field_id):
+    field = Field.objects.get(id=field_id)
+    print('field: ',field.jobs.all())
 
+    serializer = FieldSerializer(field)
+    return Response(serializer.data)
 
 
 
@@ -261,6 +269,8 @@ def job_detail_api(request,job_id=None):
         try:
             job = Job.objects.get(id=job_id,status='published')
             serializer = JobSerializer(job)
+
+            # print('job candidates: ',job.jobcandidate.all())
             
             return Response({
                 "status":True,
@@ -382,7 +392,6 @@ def job_update_api(request,job_id):
             })
 
 
-
 @api_view(['DELETE'])
 def job_delete_api(self,job_id):
 
@@ -501,7 +510,6 @@ def job_filter_api(request):
         })
 
 
-
 @api_view(['GET'])
 def job_search_api(request):
 
@@ -517,7 +525,7 @@ def job_search_api(request):
         results = Job.objects.annotate(
             search=search_vector,
             rank=SearchRank(search_vector,search_query)
-        ).filter(search=search_query).order_by('-rank')
+        ).filter(search=search_query).order_by('rank')
 
         context = paginator.paginate_queryset(results,request)
         serializer = JobSerializer(context,many=True)
@@ -535,3 +543,118 @@ def job_search_api(request):
 
 
 
+# JobCollaborator API
+@api_view(['POST'])
+def jobcandidate_post_api(request):
+    try:
+        data = request.data
+        jobcandidate = JobCandidate()
+        serializer = JobCandidateSerializer(jobcandidate,data=data)
+
+        if serializer.is_valid():
+            print('data valid')
+            jobcandidate.expected_price = data.get('expected_price')
+            jobcandidate.descriptions = data.get('descriptions')
+            jobcandidate.candidate_id = data.get('candidate_id')
+            jobcandidate.job_id = data.get('job_id')
+            
+            jobcandidate.save()
+
+            print('jobcandidate: ',JobCandidateSerializer(jobcandidate).data)
+
+            return Response({
+                "status":True,
+                "data":JobCandidateSerializer(jobcandidate).data,
+                "message":"Create job candidate successfully."
+            })
+
+        else:
+            return Response({
+                "status":True,
+                "data":None,
+                "message":serializer.errors
+            })
+
+
+    except Exception as e:
+        print('error at: ',e)
+        return Response({
+            "status":False,
+            "data":None,
+            "message":"create failed"
+        })
+
+
+
+@api_view(['GET'])
+def jobcandidate_get_api(request):
+    jobcandidate = JobCandidate.objects.all()
+
+    return Response({
+        "status":True,
+        "data":JobCandidateSerializer(jobcandidate,many=True).data
+    })
+
+
+# User or Author
+@api_view(['GET'])
+def user_jobs_api(request,user_id):
+
+    try:
+        
+        job_status = request.query_params.get('job_status')
+
+        paginator = JobPaginationCustom()
+        paginator.page_size = 10
+
+        user = User.objects.get(id=user_id)
+        user_jobs = user.jobs.filter(status=job_status).order_by('created_at')
+
+        context = paginator.paginate_queryset(user_jobs,request)
+        serializer = JobSerializer(context,many=True)
+
+        return Response(
+            paginator.get_paginated_response(serializer.data)
+        )
+
+    except Exception as e:
+        print('error at: ',e)
+        return Response({
+            "status":False,
+            "data":None,
+            "message":"Error"
+        })
+
+
+
+
+# Candidate
+@api_view(['GET'])
+def candidate_job_api(request,user_id):
+
+    try:
+
+        paginator = PaginationBaseCustom()
+
+        apply_status = request.query_params.get('apply_status')
+
+        candidate = User.objects.get(id=user_id)
+        candidate_apply =  candidate.usercandidate.filter(status=apply_status).order_by('created_at').all()
+
+        context = paginator.paginate_queryset(candidate_apply,request)
+        serializer = JobCandidateSerializer(context,many=True)
+
+        return Response(
+            paginator.get_paginated_response(serializer.data)
+        )
+    
+
+
+
+    except Exception as e:
+        print('error at: ',e)
+        return Response({
+            "status":False,
+            "data":None,
+            "message":"Error"
+        })

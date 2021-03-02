@@ -66,6 +66,7 @@ class Job(models.Model):
         ('published','PUBLISHED'),
         ('draft','DRAFT'),
         ('pending','PENDING'),
+        ('confirmed','CONFIRMED'),
     )
 
     name = models.CharField(max_length=220)
@@ -100,17 +101,20 @@ class Job(models.Model):
 
 
 
-class JobCollaborator(models.Model):
+class JobCandidate(models.Model):
     
     STATUS_CHOICE = (
         ('published','PUBLISHED'),
         ('draft','DRAFT'),
         ('pending','PENDING'),
+        ('approved','APPROVED'),
+        ('confirmed','CONFIRMED'),
+
     )
 
-    expected_price = models.DecimalField(max_digits=18,decimal_places=2)
-    description = models.TextField(null=True)
-    confirmed_price = models.DecimalField(max_digits=18,decimal_places=2)
+    expected_price = models.DecimalField(max_digits=18,decimal_places=2,null=True)
+    descriptions = models.TextField(null=True)
+    confirmed_price = models.DecimalField(max_digits=18,decimal_places=2,null=True)
     time_start = models.DateTimeField(null=True)
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
 
@@ -118,14 +122,20 @@ class JobCollaborator(models.Model):
     job = models.ForeignKey(
         Job,
         on_delete=models.CASCADE,
-        related_name='job_collaborator'
+        related_name='jobcandidate'
+    )
+
+    candidate = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='usercandidate'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self,):
-        return self.job
+        return "Job candidate"
 
 class Review(models.Model):
 
@@ -139,8 +149,8 @@ class Review(models.Model):
     review_content = models.TextField(null=True)
     review_images = models.JSONField(blank=True)
 
-    job_collaborator = models.ForeignKey(
-        JobCollaborator,
+    job_candidate = models.ForeignKey(
+        JobCandidate,
         on_delete=models.CASCADE,
         related_name='reviews'
     )

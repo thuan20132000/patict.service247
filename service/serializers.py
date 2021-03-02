@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category,Field,Job,User,Image
+from .models import Category,Field,Job,User,Image,JobCandidate
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination,BasePagination
 
@@ -80,10 +80,12 @@ class JobSerializer(serializers.ModelSerializer):
     suggestion_price = serializers.DecimalField(required=True,decimal_places=2,max_digits=18)
     # field_id = serializers.IntegerField(required=True)
     slug = serializers.SlugField(required=False)
+
+    candidates = serializers.SerializerMethodField('get_candidates')
     class Meta:
         model = Job
-        depth = 1
-        fields  = ['id','name','slug','images','location','status','descriptions','suggestion_price','author','field','created_at']
+        depth = 2
+        fields  = ['id','name','slug','images','location','status','descriptions','suggestion_price','author','field','created_at','candidates']
     
     def create(self,validated_data):
         job = Job()
@@ -111,9 +113,19 @@ class JobSerializer(serializers.ModelSerializer):
             print('image: ',image)
 
         return job        
-         
+        
+    def get_candidates(self,obj):
+        return JobCandidateSerializer(obj.jobcandidate.all(),many=True).data
     
-   
+
+class JobCandidateSerializer(serializers.ModelSerializer):
+
+    confirmed_price = serializers.DecimalField(max_digits=18,decimal_places=2,required=False)
+    class Meta:
+        model = JobCandidate
+        depth = 1
+        fields = ['id','expected_price','descriptions','confirmed_price','job','candidate','time_start','status']
+
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -139,3 +151,14 @@ class JobPaginationCustom(PageNumberPagination):
     
     
 
+class PaginationBaseCustom(PageNumberPagination):
+
+    def get_paginated_response(self,data):
+        return {
+            "status":True,
+            "count":self.page.paginator.count,
+            "next":self.get_next_link(),
+            "previous":self.get_previous_link(),
+            "limit":self.page_size,
+            "data":data
+        }

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Category,Field,JobCollaborator,Job
+from .models import Category,Field,JobCandidate,Job
 
 
 
@@ -23,3 +23,6 @@ class AdminJob(admin.ModelAdmin):
 
 
 
+@admin.register(JobCandidate)
+class AdminJobCandidate(admin.ModelAdmin):
+    pass
