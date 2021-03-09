@@ -158,8 +158,10 @@ class CandidateUserSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_candidate_images')
     class Meta:
         model = CandidateUser
+        depth = 1
         fields = '__all__'
 
+    
     def get_candidate_images(self,obj):
         return ImageSerializer(obj.candidate_user.filter(status='published').all(),many=True).data
 

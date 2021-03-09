@@ -153,8 +153,8 @@ def register_candidate_api(request, user_id):
             categories_str = data.get('categories')
             categories = json.loads(categories_str)
         if data.get('fields'):
-            categories_str = data.get('fields')
-            categories = json.loads(categories_str)
+            fields_str = data.get('fields')
+            fields = json.loads(fields_str)
 
         user_id = data.get('user') or None
 
@@ -215,8 +215,8 @@ def update_candidate_api(request, user_id):
             categories_str = data.get('categories')
             categories = json.loads(categories_str)
         if data.get('fields'):
-            categories_str = data.get('fields')
-            categories = json.loads(categories_str)
+            fields_str = data.get('fields')
+            fields = json.loads(fields_str)
 
         user_id = data.get('user') or None
 
