@@ -1,4 +1,3 @@
-
 from rest_framework.response import Response
 from .serializers import UserSerializer
 from django.shortcuts import get_object_or_404
@@ -165,10 +164,10 @@ def register_candidate_api(request, user_id):
 
             candidate_user.is_candidate = True
             candidate_user.user_id = user_id
-            candidate_user.category.set(categories)
-            candidate_user.fields.set(fields)
             candidate_user.location = location
             candidate_user.save()
+            candidate_user.category.set(categories)
+            candidate_user.fields.set(fields)
 
             if data.get('images_file'):
                 for image in data.pop('images_file'):
