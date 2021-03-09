@@ -7,10 +7,6 @@ from django.contrib.auth.models import User
 
 
 
-
-
-
-
 class Category(models.Model):
 
 
@@ -71,7 +67,6 @@ class Job(models.Model):
 
     name = models.CharField(max_length=220)
     slug = models.SlugField(max_length=220)
-    images = models.JSONField(blank=True,null=True)
     descriptions = models.TextField(blank=True,null=True)
     suggestion_price = models.DecimalField(max_digits=18,decimal_places=2)
     location = models.JSONField(blank=True,null=True)
@@ -165,6 +160,36 @@ class Review(models.Model):
 
 
 
+
+
+    
+class CandidateUser(models.Model):
+    STATUS_CHOICE = (
+        ('published','PUBLISHED'),
+        ('draft','DRAFT'),
+    )
+    is_candidate = models.BooleanField(default=False)
+    category = models.ManyToManyField(Category,blank=True,null=True)
+    fields = models.ManyToManyField(Field,blank=True,null=True)
+    location = models.JSONField(blank=True,null=True)
+
+
+    user = models.OneToOneField(
+        User,
+        related_name="candidate_user",
+        on_delete=models.CASCADE,
+        primary_key=True,
+        unique=True
+    )
+
+    status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
+
+
+    def __str__(self,):
+    
+        return f"candidate_user {self.user}"
+
+
 class Image(models.Model):
     STATUS_CHOICE = (
         ('published','PUBLISHED'),
@@ -172,7 +197,19 @@ class Image(models.Model):
     )
 
     image = models.ImageField(upload_to='upload/')
+    image_type = models.CharField(max_length=20,null=True)
+    candidate_user = models.ForeignKey(
+        CandidateUser,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="candidate_user"
+    )
+    job = models.ForeignKey(
+        Job,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="jobs"
+    )
+
 
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
-
-

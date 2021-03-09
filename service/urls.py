@@ -19,7 +19,9 @@ from .api import (
     user_jobs_api,
     jobcandidate_get_api,
     field_detail_api,
-    candidate_job_api
+    candidate_job_api,
+    register_candidate_api,
+    update_candidate_api
 )
 
 app_name = 'service'
@@ -40,6 +42,8 @@ urlpatterns = [
     path('api/v1/jobcandidates',jobcandidate_get_api,name='jobcollaborator_get_api'),
     path('api/v1/customers',customer_list_api,name='customer_list_api'),
     path('api/v1/user/<int:user_id>/jobs',user_jobs_api,name='user_jobs_api'),
+    path('api/v1/user/<int:user_id>/register-candidate',register_candidate_api,name='register_candidate_api'),
+    path('api/v1/user/<int:user_id>/update-candidate',update_candidate_api,name='update_candidate_api'),
     path('api/v1/candidate/<int:user_id>/jobs',candidate_job_api,name='candidate_jobs_api'),
 
 

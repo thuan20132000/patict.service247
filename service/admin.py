@@ -1,7 +1,13 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import Category,Field,JobCandidate,Job
+from .models import (
+    Category,
+    Field,
+    JobCandidate,
+    Job,
+    CandidateUser
+)
 
 
 
@@ -25,4 +31,11 @@ class AdminJob(admin.ModelAdmin):
 
 @admin.register(JobCandidate)
 class AdminJobCandidate(admin.ModelAdmin):
+    pass
+
+
+
+
+@admin.register(CandidateUser)
+class AdminCandidateUser(admin.ModelAdmin):
     pass

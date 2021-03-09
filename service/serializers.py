@@ -1,10 +1,27 @@
 from rest_framework import serializers
-from .models import Category,Field,Job,User,Image,JobCandidate
+from .models import (
+    Category,
+    Field,
+    Job,
+    User,
+    Image,
+    JobCandidate,
+    CandidateUser
+)
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination,BasePagination
 
 from django.utils.text import slugify
 from django.core.exceptions import FieldDoesNotExist
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = '__all__'
+
+
+
 
 class UserSingupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,15 +38,16 @@ class UserSingupSerializer(serializers.ModelSerializer):
         return user
 
 
-
 class UserSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField()
     password = serializers.CharField()
+    candidate_info = serializers.SerializerMethodField('get_candidate_info')
 
 
     class Meta:
         model = User
+        depth = 2
         fields = '__all__'
         
 
@@ -39,8 +57,10 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-
-
+    def get_candidate_info(self,obj):
+        if hasattr(obj,'candidate_user'):
+            return CandidateUserSerializer(obj.candidate_user).data
+        return None
 
 
 
@@ -84,10 +104,11 @@ class JobSerializer(serializers.ModelSerializer):
     slug = serializers.SlugField(required=False)
 
     candidates = serializers.SerializerMethodField('get_candidates')
+    images = serializers.SerializerMethodField('get_job_images')
     class Meta:
         model = Job
-        depth = 2
-        fields  = ['id','name','slug','images','location','status','descriptions','suggestion_price','author','field','created_at','candidates']
+        depth = 1
+        fields  = '__all__'
     
     def create(self,validated_data):
         job = Job()
@@ -118,6 +139,9 @@ class JobSerializer(serializers.ModelSerializer):
         
     def get_candidates(self,obj):
         return JobCandidateSerializer(obj.jobcandidate.all(),many=True).data
+
+    def get_job_images(self,obj):
+        return ImageSerializer(obj.jobs.filter(status='published').all(),many=True).data
     
 
 class JobCandidateSerializer(serializers.ModelSerializer):
@@ -129,13 +153,15 @@ class JobCandidateSerializer(serializers.ModelSerializer):
         fields = ['id','expected_price','descriptions','confirmed_price','job','candidate','time_start','status']
 
 
-class ImageSerializer(serializers.ModelSerializer):
+class CandidateUserSerializer(serializers.ModelSerializer):
+    
+    images = serializers.SerializerMethodField('get_candidate_images')
     class Meta:
-        model = Image
-        fields = ['id','image','status']
+        model = CandidateUser
+        fields = '__all__'
 
-
-
+    def get_candidate_images(self,obj):
+        return ImageSerializer(obj.candidate_user.filter(status='published').all(),many=True).data
 
 class JobPaginationCustom(PageNumberPagination):
     
@@ -151,7 +177,9 @@ class JobPaginationCustom(PageNumberPagination):
         }
 
     
-    
+
+
+
 
 class PaginationBaseCustom(PageNumberPagination):
 

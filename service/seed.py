@@ -6,6 +6,18 @@ import random
 
 fake = Faker()
 
+
+
+def gen_users(number):
+
+    for i in range(number):
+        user = User()
+        user.username = fake.name()
+        user.email = fake.email()
+        user.password = f"{number}{fake.name()}"
+        user.save()
+
+
 def gen_category(number):
     
     for i in range(number):
