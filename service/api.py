@@ -647,14 +647,34 @@ def job_search_api(request):
 
 # JobCollaborator API
 @api_view(['POST'])
-def jobcandidate_post_api(request):
+def apply_job_position(request,user_id):
+
     try:
+
+
+
         data = request.data
+
+    
+
         jobcandidate = JobCandidate()
         serializer = JobCandidateSerializer(jobcandidate, data=data)
 
+    
+
         if serializer.is_valid():
-            print('data valid')
+
+            is_applied = JobCandidate.objects.filter(job_id=data.get('job_id'),candidate_id=data.get('candidate_id')).all()
+
+            if is_applied.count() > 0:
+                return Response({
+                    "status":False,
+                    "data":None,
+                    "message":"Candidate was apply this job"
+                })
+
+            # print('is applied: ',is_applied)
+                
             jobcandidate.expected_price = data.get('expected_price')
             jobcandidate.descriptions = data.get('descriptions')
             jobcandidate.candidate_id = data.get('candidate_id')
@@ -662,7 +682,6 @@ def jobcandidate_post_api(request):
 
             jobcandidate.save()
 
-            print('jobcandidate: ', JobCandidateSerializer(jobcandidate).data)
 
             return Response({
                 "status": True,
