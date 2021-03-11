@@ -31,6 +31,7 @@ urlpatterns = [
     path('api/v1/category/<slug:category_slug>',category_detail_api,name='category_detail_api'),
     path('api/v1/fields',field_list_api,name='field_list_api'),
     path('api/v1/fields/<int:field_id>',field_detail_api,name='field_detail_api'),
+    
     path('api/v1/jobs',job_list_api,name='job_list_api'),
     path('api/v1/jobs/<int:job_id>',job_detail_api,name='job_detail_api'),
     path('api/v1/job',job_post_api,name='job_post_api'),
@@ -44,6 +45,9 @@ urlpatterns = [
     path('api/v1/user/<int:user_id>/jobs',user_jobs_api,name='user_jobs_api'),
     path('api/v1/user/<int:user_id>/register-candidate',register_candidate_api,name='register_candidate_api'),
     path('api/v1/user/<int:user_id>/update-candidate',update_candidate_api,name='update_candidate_api'),
+
+
+    # Get all jobs that candidates has been applied by job status
     path('api/v1/candidate/<int:user_id>/jobs',candidate_job_api,name='candidate_jobs_api'),
 
 

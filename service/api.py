@@ -750,6 +750,15 @@ def user_jobs_api(request, user_id):
 def candidate_job_api(request, user_id):
 
     try:
+        page = request.query_params.get('page')
+        page_limit = request.query_params.get('limit')
+
+
+        paginator.page_size = 10
+
+        if page_limit is not None:
+            paginator.page_size = int(page_limit)
+
 
         paginator = PaginationBaseCustom()
 
