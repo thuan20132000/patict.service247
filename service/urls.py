@@ -42,7 +42,10 @@ urlpatterns = [
     path('api/v1/user/<int:user_id>/apply-job',apply_job_position,name='apply_job_api'),
     path('api/v1/jobcandidates',jobcandidate_get_api,name='jobcollaborator_get_api'),
     path('api/v1/customers',customer_list_api,name='customer_list_api'),
+
+    # Get all jobs that created by user with status [published,pending,draft,confirmed]
     path('api/v1/user/<int:user_id>/jobs',user_jobs_api,name='user_jobs_api'),
+    
     path('api/v1/user/<int:user_id>/register-candidate',register_candidate_api,name='register_candidate_api'),
     path('api/v1/user/<int:user_id>/update-candidate',update_candidate_api,name='update_candidate_api'),
 
