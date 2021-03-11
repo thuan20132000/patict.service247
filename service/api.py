@@ -328,6 +328,7 @@ def job_list_api(request):
     page_limit = request.query_params.get('limit')
     category_slug = request.query_params.get('category_slug')
     field_slug = request.query_params.get('field_slug')
+    user_id = request.query_params.get('user_id')
 
     paginator = JobPaginationCustom()
     paginator.page_size = 10
@@ -340,7 +341,7 @@ def job_list_api(request):
             cat = Category.objects.get(slug=category_slug)
             fields = cat.fields.all()
             jobs = Job.objects.filter(
-                field__in=fields, status='published').order_by('-created_at').all()
+                field__in=fields, status='published').exclude(author_id=user_id).order_by('-created_at').all()
             context = paginator.paginate_queryset(jobs, request)
             serializer = JobSerializer(context, many=True)
             return Response(
@@ -357,7 +358,7 @@ def job_list_api(request):
         try:
             field = Field.objects.get(slug=field_slug)
             jobs = Job.objects.filter(
-                field=field, status='published').order_by('-created_at').all()
+                field=field, status='published').exclude(author_id=user_id).order_by('-created_at').all()
             context = paginator.paginate_queryset(jobs, request)
             serializer = JobSerializer(context, many=True)
 
@@ -369,7 +370,8 @@ def job_list_api(request):
                 "message": "Field is not exists"
             })
 
-    query_set = Job.objects.filter(status='published').order_by('-created_at')
+
+    query_set = Job.objects.filter(status='published').exclude(author_id=user_id).order_by('-created_at')
     context = paginator.paginate_queryset(query_set, request)
     serializer = JobSerializer(context, many=True)
 
@@ -773,3 +775,6 @@ def candidate_job_api(request, user_id):
             "data": None,
             "message": "Error"
         })
+
+
+
