@@ -647,41 +647,35 @@ def job_search_api(request):
 
 # JobCollaborator API
 @api_view(['POST'])
-def apply_job_position(request,user_id):
+def apply_job_position(request, user_id):
 
     try:
 
-
-
         data = request.data
-
-    
 
         jobcandidate = JobCandidate()
         serializer = JobCandidateSerializer(jobcandidate, data=data)
 
-    
-
         if serializer.is_valid():
 
-            is_applied = JobCandidate.objects.filter(job_id=data.get('job_id'),candidate_id=data.get('candidate_id')).all()
+            is_applied = JobCandidate.objects.filter(job_id=data.get(
+                'job_id'), candidate_id=data.get('candidate_id')).all()
 
             if is_applied.count() > 0:
                 return Response({
-                    "status":False,
-                    "data":None,
-                    "message":"Candidate was apply this job"
+                    "status": False,
+                    "data": None,
+                    "message": "Candidate was apply this job"
                 })
 
             # print('is applied: ',is_applied)
-                
+
             jobcandidate.expected_price = data.get('expected_price')
             jobcandidate.descriptions = data.get('descriptions')
             jobcandidate.candidate_id = data.get('candidate_id')
             jobcandidate.job_id = data.get('job_id')
 
             jobcandidate.save()
-
 
             return Response({
                 "status": True,
@@ -753,14 +747,11 @@ def candidate_job_api(request, user_id):
         page = request.query_params.get('page')
         page_limit = request.query_params.get('limit')
 
-
+        paginator = PaginationBaseCustom()
         paginator.page_size = 10
 
         if page_limit is not None:
             paginator.page_size = int(page_limit)
-
-
-        paginator = PaginationBaseCustom()
 
         apply_status = request.query_params.get('apply_status')
 
