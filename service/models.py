@@ -109,7 +109,7 @@ class JobCandidate(models.Model):
 
     expected_price = models.DecimalField(max_digits=18,decimal_places=2,null=True)
     descriptions = models.TextField(null=True)
-    confirmed_price = models.DecimalField(max_digits=18,decimal_places=2,null=True)
+    confirmed_price = models.DecimalField(max_digits=18,decimal_places=2,null=True,blank=True)
     time_start = models.DateTimeField(null=True)
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
 
