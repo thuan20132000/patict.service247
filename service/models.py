@@ -62,6 +62,7 @@ class Job(models.Model):
         ('published','PUBLISHED'),
         ('draft','DRAFT'),
         ('pending','PENDING'),
+        ('approved','APPROVED'),
         ('confirmed','CONFIRMED'),
     )
 
@@ -71,6 +72,8 @@ class Job(models.Model):
     suggestion_price = models.DecimalField(max_digits=18,decimal_places=2)
     location = models.JSONField(blank=True,null=True)
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
+    immidiately = models.BooleanField(null=True,default=False)
+    worktime = models.DateTimeField(null=True,blank=True)
 
     author = models.ForeignKey(
         User,
@@ -98,18 +101,19 @@ class Job(models.Model):
 
 class JobCandidate(models.Model):
     
+    STATUS_LIST = ['published','cancel','pending','approved','confirmed']
     STATUS_CHOICE = (
-        ('published','PUBLISHED'),
-        ('draft','DRAFT'),
-        ('pending','PENDING'),
-        ('approved','APPROVED'),
-        ('confirmed','CONFIRMED'),
+        (STATUS_LIST[0],'PUBLISHED'),
+        (STATUS_LIST[1],'CANCEL'),
+        (STATUS_LIST[2],'PENDING'),
+        (STATUS_LIST[3],'APPROVED'),
+        (STATUS_LIST[4],'CONFIRMED'),
 
     )
 
     expected_price = models.DecimalField(max_digits=18,decimal_places=2,null=True)
     descriptions = models.TextField(null=True)
-    confirmed_price = models.DecimalField(max_digits=18,decimal_places=2,null=True)
+    confirmed_price = models.DecimalField(max_digits=18,decimal_places=2,null=True,blank=True)
     time_start = models.DateTimeField(null=True)
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')
 

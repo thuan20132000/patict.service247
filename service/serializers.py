@@ -150,7 +150,7 @@ class JobCandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobCandidate
         depth = 1
-        fields = ['id','expected_price','descriptions','confirmed_price','job','candidate','time_start','status']
+        fields = ['id','expected_price','descriptions','confirmed_price','job','candidate','time_start','status','created_at','updated_at']
 
 
 class CandidateUserSerializer(serializers.ModelSerializer):
