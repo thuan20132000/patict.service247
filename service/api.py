@@ -370,8 +370,8 @@ def job_list_api(request):
                 "message": "Field is not exists"
             })
 
-
-    query_set = Job.objects.filter(status='published').exclude(author_id=user_id).order_by('-created_at')
+    query_set = Job.objects.filter(status='published').exclude(
+        author_id=user_id).order_by('-created_at')
     context = paginator.paginate_queryset(query_set, request)
     serializer = JobSerializer(context, many=True)
 
@@ -723,7 +723,7 @@ def user_jobs_api(request, user_id):
         paginator.page_size = 10
 
         user = User.objects.get(id=user_id)
-        user_jobs = user.jobs.filter(status=job_status).order_by('created_at')
+        user_jobs = user.jobs.filter(status=job_status).order_by('-created_at')
 
         context = paginator.paginate_queryset(user_jobs, request)
         serializer = JobSerializer(context, many=True)
@@ -741,7 +741,56 @@ def user_jobs_api(request, user_id):
         })
 
 
+# User select or cancel candidate by change status
+@api_view(['PUT'])
+def modify_job_candidate(request, user_id):
+    try:
+
+        data = request.data
+        jobcandidate_id = data.get('jobcandidate_id')
+        jobcandidate_status = data.get('status')
+
+        status_validation = jobcandidate_status in JobCandidate.STATUS_LIST
+
+        if status_validation and jobcandidate_id is not None:
+
+            job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
+            job_candidate.status = jobcandidate_status
+            job_candidate.save()
+
+            if jobcandidate_status == "approved" or jobcandidate_status == 'confirmed':
+                job_candidate.job.status = jobcandidate_status
+                job_candidate.job.save()
+            else :
+                job_candidate.job.status = "published"
+            serializer = JobCandidateSerializer(job_candidate).data
+
+            return Response({
+                "status": True,
+                "data": serializer,
+                "message": "success!"
+            })
+
+        else:
+            print('jobcandidate_id is none')
+
+        return Response({
+            "status": False,
+            "data": None,
+            "message": "failed!"
+        })
+
+    except Exception as e:
+        print('error at: ', e)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": "Error "
+        })
+
 # Candidate
+
+
 @api_view(['GET'])
 def candidate_job_api(request, user_id):
 
@@ -775,6 +824,3 @@ def candidate_job_api(request, user_id):
             "data": None,
             "message": "Error"
         })
-
-
-
