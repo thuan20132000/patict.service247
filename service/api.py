@@ -385,11 +385,8 @@ def job_detail_api(request, job_id=None):
 
     if job_id is not None:
         try:
-            job = Job.objects.get(id=job_id, status='published')
+            job = Job.objects.get(id=job_id)
             serializer = JobSerializer(job)
-
-            # print('job candidates: ',job.jobcandidate.all())
-
             return Response({
                 "status": True,
                 "data": serializer.data
@@ -721,12 +718,19 @@ def user_jobs_api(request, user_id):
 
         paginator = JobPaginationCustom()
         paginator.page_size = 10
-
         user = User.objects.get(id=user_id)
-        user_jobs = user.jobs.filter(status=job_status).order_by('-created_at')
 
-        context = paginator.paginate_queryset(user_jobs, request)
-        serializer = JobSerializer(context, many=True)
+        if job_status == "approved":
+
+            user_approved_jobs = JobCandidate.objects.filter(
+                job__status="approved",job__author_id=user_id).order_by('-updated_at').all()
+            context = paginator.paginate_queryset(user_approved_jobs, request)
+            serializer = JobCandidateSerializer(context, many=True)
+
+        else:
+            user_jobs = user.jobs.order_by('-created_at').all()
+            context = paginator.paginate_queryset(user_jobs, request)
+            serializer = JobSerializer(context, many=True)
 
         return Response(
             paginator.get_paginated_response(serializer.data)
@@ -739,6 +743,20 @@ def user_jobs_api(request, user_id):
             "data": None,
             "message": "Error"
         })
+
+
+# # User or Author
+# @api_view(['GET'])
+# def user_jobcandidate(request, user_id):
+#     try:
+
+#     except Exception as e:
+#         print('error at: ', e)
+#         return Response({
+#             "status": False,
+#             "data": None,
+#             "message": "Error"
+#         })
 
 
 # User select or cancel candidate by change status
@@ -756,19 +774,24 @@ def modify_job_candidate(request, user_id):
 
             job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
             job_candidate.status = jobcandidate_status
-            job_candidate.save()
+            # job_candidate.save()
 
             if jobcandidate_status == "approved" or jobcandidate_status == 'confirmed':
                 job_candidate.job.status = jobcandidate_status
-                job_candidate.job.save()
-            else :
+
+            else:
                 job_candidate.job.status = "published"
+
+            job_candidate.job.save()
+            job_candidate.save()
+            # print("status: ",jobcandidate_status)
+            # print(job_candidate.status)
             serializer = JobCandidateSerializer(job_candidate).data
 
             return Response({
                 "status": True,
                 "data": serializer,
-                "message": "success!"
+                "message": "success"
             })
 
         else:
