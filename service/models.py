@@ -149,9 +149,8 @@ class Review(models.Model):
 
     review_level = models.IntegerField()
     review_content = models.TextField(null=True)
-    review_images = models.JSONField(blank=True)
 
-    job_candidate = models.ForeignKey(
+    job_candidate = models.OneToOneField(
         JobCandidate,
         on_delete=models.CASCADE,
         related_name='reviews'
@@ -216,6 +215,12 @@ class Image(models.Model):
         on_delete=models.CASCADE,
         null=True,
         related_name="jobs"
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="review"
     )
 
 
