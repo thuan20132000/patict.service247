@@ -161,10 +161,8 @@ class JobCandidateSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
     def get_review(self,obj):
-        if obj.reviews is not None:
-            return ReviewSerializer(obj.reviews).data
-        else:
-            return None
+        return ReviewSerializer(obj.reviews.filter(status="published").all(),many=True).data
+      
 
 class CandidateUserSerializer(serializers.ModelSerializer):
     

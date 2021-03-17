@@ -784,6 +784,8 @@ def modify_job_candidate(request, user_id):
 
             elif jobcandidate_status == "confirmed":
                 job_candidate.confirmed_price = data.get('confirmed_price')
+                job_candidate.job.status = jobcandidate_status
+
                 try:
                     review = Review()
                     review.review_level = data.get('review_level')

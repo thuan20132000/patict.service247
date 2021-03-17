@@ -150,7 +150,7 @@ class Review(models.Model):
     review_level = models.IntegerField()
     review_content = models.TextField(null=True)
 
-    job_candidate = models.OneToOneField(
+    job_candidate = models.ForeignKey(
         JobCandidate,
         on_delete=models.CASCADE,
         related_name='reviews',
