@@ -6,7 +6,8 @@ from .models import (
     User,
     Image,
     JobCandidate,
-    CandidateUser
+    CandidateUser,
+    Review
 )
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination,BasePagination
@@ -21,6 +22,11 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = '__all__'
 
 
 class UserSingupSerializer(serializers.ModelSerializer):
@@ -147,10 +153,23 @@ class JobSerializer(serializers.ModelSerializer):
 class JobCandidateSerializer(serializers.ModelSerializer):
 
     confirmed_price = serializers.DecimalField(max_digits=18,decimal_places=2,required=False)
+    reviews = ReviewSerializer()
     class Meta:
         model = JobCandidate
         depth = 1
-        fields = ['id','expected_price','descriptions','confirmed_price','job','candidate','time_start','status','created_at','updated_at']
+        fields = [
+            'id',
+            'expected_price',
+            'descriptions',
+            'confirmed_price',
+            'job',
+            'candidate',
+            'time_start',
+            'status',
+            'created_at',
+            'updated_at',
+            'reviews'
+        ]
 
 
 class CandidateUserSerializer(serializers.ModelSerializer):

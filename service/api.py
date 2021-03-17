@@ -12,7 +12,8 @@ from .models import (
     Field,
     Image,
     JobCandidate,
-    CandidateUser
+    CandidateUser,
+    Review
 )
 from django.utils.text import slugify
 from .serializers import (
@@ -775,17 +776,31 @@ def modify_job_candidate(request, user_id):
             job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
             job_candidate.status = jobcandidate_status
             # job_candidate.save()
-
-            if jobcandidate_status == "approved" or jobcandidate_status == 'confirmed':
+            # print("job_candidate: ",job_candidate)
+        
+            if jobcandidate_status == "approved":
                 job_candidate.job.status = jobcandidate_status
+            
+            elif jobcandidate_status == "confirmed":
+                job_candidate.confirmed_price = data.get('confirmed_price')
+                try:
+                    review = Review()
+                    review.review_level = data.get('review_level')
+                    review.review_content = data.get('review_content')
+                    review.job_candidate = job_candidate
+                    review.save()
+                except Exception as e:
+                    review = Review.objects.get(job_candidate=job_candidate)
+                    review.review_level = data.get('review_level')
+                    review.review_content = data.get('review_content')
+                    review.save()
 
             else:
                 job_candidate.job.status = "published"
-
+            
             job_candidate.job.save()
             job_candidate.save()
-            # print("status: ",jobcandidate_status)
-            # print(job_candidate.status)
+        
             serializer = JobCandidateSerializer(job_candidate).data
 
             return Response({
