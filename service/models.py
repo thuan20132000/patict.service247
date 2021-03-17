@@ -153,7 +153,8 @@ class Review(models.Model):
     job_candidate = models.OneToOneField(
         JobCandidate,
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='reviews',
+        null=True
     )
 
     status = models.CharField(max_length=10,choices=STATUS_CHOICE,default='published')

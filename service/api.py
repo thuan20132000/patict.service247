@@ -27,7 +27,8 @@ from .serializers import (
     ImageSerializer,
     JobCandidateSerializer,
     PaginationBaseCustom,
-    CandidateUserSerializer
+    CandidateUserSerializer,
+    ReviewSerializer
 )
 
 import json
@@ -724,7 +725,7 @@ def user_jobs_api(request, user_id):
         if job_status == "approved":
 
             user_approved_jobs = JobCandidate.objects.filter(
-                job__status="approved",job__author_id=user_id).order_by('-updated_at').all()
+                job__status="approved", job__author_id=user_id).order_by('-updated_at').all()
             context = paginator.paginate_queryset(user_approved_jobs, request)
             serializer = JobCandidateSerializer(context, many=True)
 
@@ -777,10 +778,10 @@ def modify_job_candidate(request, user_id):
             job_candidate.status = jobcandidate_status
             # job_candidate.save()
             # print("job_candidate: ",job_candidate)
-        
+
             if jobcandidate_status == "approved":
                 job_candidate.job.status = jobcandidate_status
-            
+
             elif jobcandidate_status == "confirmed":
                 job_candidate.confirmed_price = data.get('confirmed_price')
                 try:
@@ -797,10 +798,10 @@ def modify_job_candidate(request, user_id):
 
             else:
                 job_candidate.job.status = "published"
-            
+
             job_candidate.job.save()
             job_candidate.save()
-        
+
             serializer = JobCandidateSerializer(job_candidate).data
 
             return Response({
@@ -850,6 +851,36 @@ def candidate_job_api(request, user_id):
 
         context = paginator.paginate_queryset(candidate_apply, request)
         serializer = JobCandidateSerializer(context, many=True)
+
+        return Response(
+            paginator.get_paginated_response(serializer.data)
+        )
+
+    except Exception as e:
+        print('error at: ', e)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": "Error"
+        })
+
+
+@api_view(['GET'])
+def candidate_review_api(request, user_id):
+    try:
+        page = request.query_params.get('page')
+        page_limit = request.query_params.get('limit')
+        paginator = PaginationBaseCustom()
+        paginator.page_size = 10
+
+        if page_limit is not None:
+            paginator.page_size = int(page_limit)
+
+        reviews = Review.objects.filter(
+            job_candidate__candidate_id=user_id).order_by('-updated_at').all()
+
+        context = paginator.paginate_queryset(reviews, request)
+        serializer = ReviewSerializer(context, many=True)
 
         return Response(
             paginator.get_paginated_response(serializer.data)

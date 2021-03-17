@@ -22,7 +22,8 @@ from .api import (
     candidate_job_api,
     register_candidate_api,
     update_candidate_api,
-    modify_job_candidate
+    modify_job_candidate,
+    candidate_review_api,
 )
 
 app_name = 'service'
@@ -54,9 +55,9 @@ urlpatterns = [
     # user select or cancel candidate
     path('api/v1/user/<int:user_id>/jobcandidate',modify_job_candidate,name='modify_jobcandidate_api'),
 
-
     # Get all jobs that candidates has been applied by job status
     path('api/v1/candidate/<int:user_id>/jobs',candidate_job_api,name='candidate_jobs_api'),
+    path('api/v1/candidate/<int:user_id>/reviews',candidate_review_api,name='candidate_reviews_api'),
 
 
 

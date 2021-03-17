@@ -26,6 +26,7 @@ class ImageSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
+        depth = 3
         fields = '__all__'
 
 
@@ -153,24 +154,17 @@ class JobSerializer(serializers.ModelSerializer):
 class JobCandidateSerializer(serializers.ModelSerializer):
 
     confirmed_price = serializers.DecimalField(max_digits=18,decimal_places=2,required=False)
-    reviews = ReviewSerializer()
+    reviews = serializers.SerializerMethodField('get_review')
     class Meta:
         model = JobCandidate
         depth = 1
-        fields = [
-            'id',
-            'expected_price',
-            'descriptions',
-            'confirmed_price',
-            'job',
-            'candidate',
-            'time_start',
-            'status',
-            'created_at',
-            'updated_at',
-            'reviews'
-        ]
-
+        fields = '__all__'
+    
+    def get_review(self,obj):
+        if obj.reviews is not None:
+            return ReviewSerializer(obj.reviews).data
+        else:
+            return None
 
 class CandidateUserSerializer(serializers.ModelSerializer):
     
