@@ -24,6 +24,9 @@ from .api import (
     update_candidate_api,
     modify_job_candidate,
     candidate_review_api,
+    search_candidate_api,
+    get_candidate_detail,
+    
 )
 
 app_name = 'service'
@@ -51,14 +54,21 @@ urlpatterns = [
     # user
     path('api/v1/user/<int:user_id>/register-candidate',register_candidate_api,name='register_candidate_api'),
     path('api/v1/user/<int:user_id>/update-candidate',update_candidate_api,name='update_candidate_api'),
-    
     # user select or cancel candidate
     path('api/v1/user/<int:user_id>/jobcandidate',modify_job_candidate,name='modify_jobcandidate_api'),
+    # user detail
+
+    #user search
+    path('api/v1/user/<int:user_id>/search-candidate',search_candidate_api,name='search_candidate_api'),
+
+
 
     # Get all jobs that candidates has been applied by job status
     path('api/v1/candidate/<int:user_id>/jobs',candidate_job_api,name='candidate_jobs_api'),
     path('api/v1/candidate/<int:user_id>/reviews',candidate_review_api,name='candidate_reviews_api'),
 
+    # candidate detail
+    path('api/v1/candidate/<int:user_id>/detail',get_candidate_detail,name="get_candidate_detail"),
 
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

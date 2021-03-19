@@ -179,7 +179,7 @@ class CandidateUser(models.Model):
     category = models.ManyToManyField(Category,blank=True,null=True)
     fields = models.ManyToManyField(Field,blank=True,null=True)
     location = models.JSONField(blank=True,null=True)
-
+    descriptions = models.TextField(blank=True,null=True,default=None)
 
     user = models.OneToOneField(
         User,

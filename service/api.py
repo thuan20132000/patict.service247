@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.postgres.search import SearchVector, SearchRank, SearchQuery
 
 from .models import (
     User,
@@ -301,7 +302,6 @@ def field_list_api(request):
 @api_view(['GET'])
 def field_detail_api(request, field_id):
     field = Field.objects.get(id=field_id)
-    print('field: ', field.jobs.all())
 
     serializer = FieldSerializer(field)
     return Response(serializer.data)
@@ -737,8 +737,9 @@ def user_jobs_api(request, user_id):
             serializer = JobCandidateSerializer(context, many=True)
 
         else:
-        
-            user_jobs = user.jobs.filter(status="published").order_by('-created_at').all()
+
+            user_jobs = user.jobs.filter(
+                status="published").order_by('-created_at').all()
             context = paginator.paginate_queryset(user_jobs, request)
             serializer = JobSerializer(context, many=True)
 
@@ -837,7 +838,69 @@ def modify_job_candidate(request, user_id):
             "message": "Error "
         })
 
+
+# User search
+@api_view(['GET'])
+def search_candidate_api(request, user_id):
+
+    try:
+        page = request.query_params.get('page')
+        page_limit = request.query_params.get('limit')
+
+        paginator = PaginationBaseCustom()
+        paginator.page_size = 10
+
+        if page_limit is not None:
+            paginator.page_size = int(page_limit)
+
+        query = request.query_params.get('query')
+
+        search_vector = SearchVector('descriptions', 'fields__name')
+        search_query = SearchQuery(query)
+
+        candidate = CandidateUser.objects.annotate(
+            search=search_vector,
+            rank=SearchRank(search_vector, search_query)
+        ).filter(search=search_query).order_by('-rank')
+
+        context = paginator.paginate_queryset(candidate, request)
+        serializer = CandidateUserSerializer(context, many=True)
+
+        return Response(
+            paginator.get_paginated_response(serializer.data)
+        )
+
+    except Exception as e:
+        print('error at: ', e)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": "Error"
+        })
+
+
 # Candidate
+@api_view(['GET'])
+def get_candidate_detail(request, user_id):
+    try:
+        candidate = User.objects.get(pk=user_id)
+        serializer = UserSerializer(candidate).data
+        return Response({
+            "status":True,
+            "message":"Get candidate detail successfully",
+            "data":serializer,
+            
+        })
+
+    except Exception as e:
+        print('error at: ', e)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": "Error"
+        })
+
+    
 
 
 @api_view(['GET'])
