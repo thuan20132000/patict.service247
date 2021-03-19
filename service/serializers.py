@@ -26,7 +26,7 @@ class ImageSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        depth = 3
+        depth = 1
         fields = '__all__'
 
 
@@ -167,6 +167,7 @@ class JobCandidateSerializer(serializers.ModelSerializer):
 class CandidateUserSerializer(serializers.ModelSerializer):
     
     images = serializers.SerializerMethodField('get_candidate_images')
+    reviews = serializers.SerializerMethodField('get_candidate_reviews')
     class Meta:
         model = CandidateUser
         depth = 1
@@ -175,6 +176,11 @@ class CandidateUserSerializer(serializers.ModelSerializer):
     
     def get_candidate_images(self,obj):
         return ImageSerializer(obj.candidate_user.filter(status='published').all(),many=True).data
+
+    def get_candidate_reviews(self,obj):
+        reviews = Review.objects.filter(job_candidate__candidate_id=obj.user_id)
+        return ReviewSerializer(reviews.all(),many=True).data
+
 
 class JobPaginationCustom(PageNumberPagination):
     

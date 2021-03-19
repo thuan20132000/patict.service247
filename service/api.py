@@ -883,8 +883,8 @@ def search_candidate_api(request, user_id):
 @api_view(['GET'])
 def get_candidate_detail(request, user_id):
     try:
-        candidate = User.objects.get(pk=user_id)
-        serializer = UserSerializer(candidate).data
+        candidate = CandidateUser.objects.get(user_id=user_id)
+        serializer = CandidateUserSerializer(candidate).data
         return Response({
             "status":True,
             "message":"Get candidate detail successfully",

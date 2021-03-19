@@ -147,7 +147,7 @@ class Review(models.Model):
         ('pending','PENDING'),
     )
 
-    review_level = models.IntegerField()
+    review_level = models.IntegerField(null=True,default=0)
     review_content = models.TextField(null=True)
 
     job_candidate = models.ForeignKey(
