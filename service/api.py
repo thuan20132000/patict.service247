@@ -860,8 +860,9 @@ def search_candidate_api(request, user_id):
 
         candidate = CandidateUser.objects.annotate(
             search=search_vector,
-            rank=SearchRank(search_vector, search_query)
-        ).filter(search=search_query).order_by('-rank')
+        ).filter(search=search_query).distinct('user')
+
+
 
         context = paginator.paginate_queryset(candidate, request)
         serializer = CandidateUserSerializer(context, many=True)
