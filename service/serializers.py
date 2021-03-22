@@ -24,10 +24,16 @@ class ImageSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    review_author = serializers.SerializerMethodField('get_review_author')
+
     class Meta:
         model = Review
         depth = 1
         fields = '__all__'
+
+    def get_review_author(self, obj):
+        print(obj.job_candidate.job.author)
+        return UserSerializer(obj.job_candidate.job.author).data
 
 
 class UserSingupSerializer(serializers.ModelSerializer):
