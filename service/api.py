@@ -223,6 +223,7 @@ def update_candidate_api(request, user_id):
         user_id = data.get('user') or None
 
         candidate_user = CandidateUser.objects.get(user_id=user_id)
+        candidate_user.descriptions = data.get('descriptions')
 
         if categories:
             candidate_user.category.set(categories)
@@ -862,8 +863,6 @@ def search_candidate_api(request, user_id):
             search=search_vector,
         ).filter(search=search_query).distinct('user')
 
-
-
         context = paginator.paginate_queryset(candidate, request)
         serializer = CandidateUserSerializer(context, many=True)
 
@@ -885,12 +884,13 @@ def search_candidate_api(request, user_id):
 def get_candidate_detail(request, user_id):
     try:
         candidate = CandidateUser.objects.get(user_id=user_id)
-        serializer = CandidateUserSerializer(candidate).data
+        candidate_info_serializer = UserSerializer(candidate.user).data
+
         return Response({
-            "status":True,
-            "message":"Get candidate detail successfully",
-            "data":serializer,
-            
+            "status": True,
+            "message": "Get candidate detail successfully",
+            "data": candidate_info_serializer,
+
         })
 
     except Exception as e:
@@ -900,8 +900,6 @@ def get_candidate_detail(request, user_id):
             "data": None,
             "message": "Error"
         })
-
-    
 
 
 @api_view(['GET'])
@@ -955,6 +953,37 @@ def candidate_review_api(request, user_id):
 
         context = paginator.paginate_queryset(reviews, request)
         serializer = ReviewSerializer(context, many=True)
+
+        return Response(
+            paginator.get_paginated_response(serializer.data)
+        )
+
+    except Exception as e:
+        print('error at: ', e)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": "Error"
+        })
+
+
+@api_view(['GET'])
+def get_candidate_images(request, user_id):
+    try:
+        page = request.query_params.get('page')
+        page_limit = request.query_params.get('limit')
+        paginator = PaginationBaseCustom()
+        paginator.page_size = 10
+
+        if page_limit is not None:
+            paginator.page_size = int(page_limit)
+
+        images = Image.objects.filter(
+            status='published',candidate_user=user_id,image_type="job"
+        ).all()
+
+        context = paginator.paginate_queryset(images, request)
+        serializer = ImageSerializer(context, many=True)
 
         return Response(
             paginator.get_paginated_response(serializer.data)

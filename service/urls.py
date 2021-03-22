@@ -26,6 +26,7 @@ from .api import (
     candidate_review_api,
     search_candidate_api,
     get_candidate_detail,
+    get_candidate_images,
     
 )
 
@@ -69,7 +70,7 @@ urlpatterns = [
 
     # candidate detail
     path('api/v1/candidate/<int:user_id>/detail',get_candidate_detail,name="get_candidate_detail"),
-
+    path('api/v1/candidate/<int:user_id>/images',get_candidate_images,name="get_candidate_image"),
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
