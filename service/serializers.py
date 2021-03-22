@@ -164,7 +164,7 @@ class CandidateUserSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_candidate_images')
     reviews = serializers.SerializerMethodField('get_candidate_reviews')
     review_overall = serializers.SerializerMethodField('get_review_overall')
-
+    candidate_info = serializers.SerializerMethodField('get_candidate_info')
     class Meta:
         model = CandidateUser
         depth = 1
@@ -182,7 +182,16 @@ class CandidateUserSerializer(serializers.ModelSerializer):
         reviews_overall = Review.objects.filter(job_candidate__candidate_id=obj.user_id).aggregate(
             review_level_avg=Avg('review_level'), review_count=Count('id'))
         # print('reviews: ',reviews)
+
+        print(obj.user.username)
+        # return UserSerializer(obj.user).data
+
         return reviews_overall
+    
+    def get_candidate_info(self,obj):
+        return {
+            "username":obj.user.username,
+        }
 
 
 class JobPaginationCustom(PageNumberPagination):
