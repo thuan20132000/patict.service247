@@ -181,11 +181,6 @@ class CandidateUserSerializer(serializers.ModelSerializer):
     def get_review_overall(self, obj):
         reviews_overall = Review.objects.filter(job_candidate__candidate_id=obj.user_id).aggregate(
             review_level_avg=Avg('review_level'), review_count=Count('id'))
-        # print('reviews: ',reviews)
-
-        print(obj.user.username)
-        # return UserSerializer(obj.user).data
-
         return reviews_overall
     
     def get_candidate_info(self,obj):
