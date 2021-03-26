@@ -17,16 +17,15 @@ from .api import (
     job_search_api,
     apply_job_position,
     user_jobs_api,
-    jobcandidate_get_api,
     field_detail_api,
-    candidate_job_api,
+    get_candidate_job_api,
     register_candidate_api,
     update_candidate_api,
     modify_job_candidate,
-    candidate_review_api,
+    get_candidate_review_api,
     search_candidate_api,
-    get_candidate_detail,
     get_candidate_images,
+    get_user_detail
     
 )
 
@@ -46,7 +45,6 @@ urlpatterns = [
     path('api/v1/job/filter',job_filter_api,name='job_filter_api'),
     path('api/v1/job/search',job_search_api,name='job_search_api'),
     path('api/v1/user/<int:user_id>/apply-job',apply_job_position,name='apply_job_api'),
-    path('api/v1/jobcandidates',jobcandidate_get_api,name='jobcollaborator_get_api'),
     path('api/v1/customers',customer_list_api,name='customer_list_api'),
 
     # Get all jobs that created by user with status [published,pending,draft,confirmed]
@@ -58,18 +56,17 @@ urlpatterns = [
     # user select or cancel candidate
     path('api/v1/user/<int:user_id>/jobcandidate',modify_job_candidate,name='modify_jobcandidate_api'),
     # user detail
-
+    path('api/v1/user/<int:user_id>/detail',get_user_detail,name="get_user_detail"),
     #user search
     path('api/v1/user/<int:user_id>/search-candidate',search_candidate_api,name='search_candidate_api'),
 
 
 
     # Get all jobs that candidates has been applied by job status
-    path('api/v1/candidate/<int:user_id>/jobs',candidate_job_api,name='candidate_jobs_api'),
-    path('api/v1/candidate/<int:user_id>/reviews',candidate_review_api,name='candidate_reviews_api'),
+    path('api/v1/candidate/<int:user_id>/jobs',get_candidate_job_api,name='candidate_jobs_api'),
+    path('api/v1/candidate/<int:user_id>/reviews',get_candidate_review_api,name='candidate_reviews_api'),
 
-    # candidate detail
-    path('api/v1/candidate/<int:user_id>/detail',get_candidate_detail,name="get_candidate_detail"),
+    # candidate
     path('api/v1/candidate/<int:user_id>/images',get_candidate_images,name="get_candidate_image"),
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

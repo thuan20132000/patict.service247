@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.http import JsonResponse
 from .models import (
     Category,
     Field,
@@ -7,7 +8,8 @@ from .models import (
     Image,
     JobCandidate,
     CandidateUser,
-    Review
+    Review,
+    ServiceUser
 )
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination, BasePagination
@@ -32,20 +34,23 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_review_author(self, obj):
-        print(obj.job_candidate.job.author)
         return UserSerializer(obj.job_candidate.job.author).data
 
 
 class UserSingupSerializer(serializers.ModelSerializer):
+
+    phonenumber = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+    username = serializers.CharField(required=True)
+
     class Meta:
-        model = User
+        model = ServiceUser
         fields = '__all__'
 
     def create(self, validated_data):
-        user = User(
-            email=validated_data['email'],
+        user = ServiceUser(
+            phonenumber=validated_data['phonenumber'],
             username=validated_data['username'],
-
         )
         user.set_password(validated_data['password'])
         return user
@@ -133,7 +138,6 @@ class JobSerializer(serializers.ModelSerializer):
         images = validated_data.pop('images')
         for image in images:
             image = Image.objects.create(image_url=image, job_id=job.id)
-            print('image: ', image)
 
         return job
 
@@ -149,14 +153,82 @@ class JobCandidateSerializer(serializers.ModelSerializer):
     confirmed_price = serializers.DecimalField(
         max_digits=18, decimal_places=2, required=False)
     reviews = serializers.SerializerMethodField('get_review')
+    candidate = serializers.SerializerMethodField('get_candidate')
 
     class Meta:
         model = JobCandidate
-        depth = 1
         fields = '__all__'
+        depth = 1
 
     def get_review(self, obj):
         return ReviewSerializer(obj.reviews.filter(status="published").all(), many=True).data
+
+    def get_candidate(self, obj):
+        return ServiceUserSerializer(obj.candidate).data
+
+
+class JobPaginationCustom(PageNumberPagination):
+
+    def get_paginated_response(self, data, **kwargs):
+
+        response_dict = dict()
+        for key, value in kwargs.items():
+            response_dict[key] = value
+
+        response_dict["status"] = True
+        response_dict["count"] = self.page.paginator.count
+        response_dict["next"] = self.get_next_link()
+        response_dict["previous"] = self.get_previous_link()
+        response_dict["limit"] = self.page_size
+        response_dict["data"] = data
+
+        return response_dict
+
+
+class PaginationBaseCustom(PageNumberPagination):
+
+    def get_paginated_response(self, data, **kwargs):
+        response_dict = dict()
+        for key, value in kwargs.items():
+            response_dict[key] = value
+
+        response_dict["status"] = True
+        response_dict["count"] = self.page.paginator.count
+        response_dict["next"] = self.get_next_link()
+        response_dict["previous"] = self.get_previous_link()
+        response_dict["limit"] = self.page_size
+        response_dict["data"] = data
+
+        return response_dict
+
+
+class ServiceUserSerializer(serializers.ModelSerializer):
+
+    username = serializers.CharField(required=False)
+    candidate_info = serializers.SerializerMethodField('get_candidate_info')
+
+    class Meta:
+        model = ServiceUser
+        depth = 1
+        exclude = ['password']
+
+    def get_candidate_info(self, obj):
+        # return {
+        #     "username":obj.user.username,
+        # }
+        if hasattr(obj, 'candidate_user'):
+            return CandidateUserSerializer(obj.candidate_user).data
+        return None
+
+
+class ServiceUserSigninSerializer(serializers.ModelSerializer):
+    phonenumber = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+    username = serializers.CharField(required=False)
+
+    class Meta:
+        model = ServiceUser
+        fields = '__all__'
 
 
 class CandidateUserSerializer(serializers.ModelSerializer):
@@ -164,7 +236,7 @@ class CandidateUserSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField('get_candidate_images')
     reviews = serializers.SerializerMethodField('get_candidate_reviews')
     review_overall = serializers.SerializerMethodField('get_review_overall')
-    candidate_info = serializers.SerializerMethodField('get_candidate_info')
+
     class Meta:
         model = CandidateUser
         depth = 1
@@ -182,34 +254,3 @@ class CandidateUserSerializer(serializers.ModelSerializer):
         reviews_overall = Review.objects.filter(job_candidate__candidate_id=obj.user_id).aggregate(
             review_level_avg=Avg('review_level'), review_count=Count('id'))
         return reviews_overall
-    
-    def get_candidate_info(self,obj):
-        return {
-            "username":obj.user.username,
-        }
-
-
-class JobPaginationCustom(PageNumberPagination):
-
-    def get_paginated_response(self, data):
-        return {
-            "status": True,
-            'count': self.page.paginator.count,
-            'next': self.get_next_link(),
-            'previous': self.get_previous_link(),
-            'limit': self.page_size,
-            'data': data,
-        }
-
-
-class PaginationBaseCustom(PageNumberPagination):
-
-    def get_paginated_response(self, data):
-        return {
-            "status": True,
-            "count": self.page.paginator.count,
-            "next": self.get_next_link(),
-            "previous": self.get_previous_link(),
-            "limit": self.page_size,
-            "data": data
-        }
