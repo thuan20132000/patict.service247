@@ -109,6 +109,8 @@ def gen_jobs(number):
             job.descriptions = fake.name()
             job.suggestion_price = random.randint(1000, 2000)
             job.author = random.choice(users)
+            job.location = {"address": "", "district": "Quận Liên Chiểu", "province": "Thành phố Đà Nẵng",
+                            "subdistrict": "Phường Hòa Khánh Bắc", "district_code": "490", "province_code": "48", "subdistrict_code": "20197"}
             job.field = random.choice(fields)
             job.save()
         message = f'Success: gen_category'

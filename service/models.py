@@ -26,6 +26,8 @@ class ServiceUser(AbstractBaseUser):
     notification_token = models.TextField(blank=True,null=True)
 
     REQUIRED_FIELDS = ['phonenumber']
+    USERNAME_FIELD = "phonenumber"
+
 
     def __str__(self,):
         return "Service User:  %s %s "% (self.username,self.phonenumber)

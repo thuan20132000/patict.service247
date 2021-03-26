@@ -1,0 +1,7 @@
+
+ 2021-03-26 09:54:21.632147 : Error: could not connect to server: Connection refused
+	Is the server running on host "127.0.0.1" and accepting
+	TCP/IP connections on port 5432?
+ at 98 - gen_jobs - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-26 09:54:27.429355 : Success: gen_category at 98 - gen_jobs - /Users/truongthuan/Develop/python/service247/service/seed.py
