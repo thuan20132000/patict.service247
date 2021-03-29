@@ -25,7 +25,7 @@ class AdminField(admin.ModelAdmin):
 @admin.register(Job)
 class AdminJob(admin.ModelAdmin):
     prepopulated_fields = {"slug": ('name',)}
-    list_display = ('name', 'descriptions', 'location', 'get_author')
+    list_display = ('name', 'descriptions', 'location', 'get_author','created_at')
 
     def get_author(self, obj):
         if obj.name:
@@ -55,3 +55,5 @@ class UserJob(admin.AdminSite):
 class AdminServiceUser(admin.ModelAdmin):
     list_display = ('username', 'phonenumber',
                     'status', 'gender', 'created_at')
+
+    list_filter = ('gender','status','candidate_user__fields')

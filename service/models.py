@@ -3,7 +3,7 @@ from django.contrib.auth.models import User, AbstractBaseUser, AbstractUser
 from django.urls import reverse
 # Create your models here.
 # Preparing to transfer from User to ServiceUser
-
+from local_env.config import SERVER_PATH
 
 class ServiceUser(AbstractBaseUser):
 
@@ -23,7 +23,7 @@ class ServiceUser(AbstractBaseUser):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICE, default='published')
 
-    notification_token = models.TextField(blank=True,null=True)
+    notification_token = models.CharField(blank=True,null=True,editable=False,max_length=255)
 
     REQUIRED_FIELDS = ['phonenumber']
     USERNAME_FIELD = "phonenumber"
@@ -247,13 +247,21 @@ class Image(models.Model):
         max_length=10, choices=STATUS_CHOICE, default='published')
 
 
+
+    def get_absolute_url(self,):
+
+        return '%s/media/%s'%(SERVER_PATH,self.image)
+
+
 class Notification(models.Model):
     STATUS_CHOICE = (
-        ('published', 'PUBLISHED'),
+        ('pending', 'PENDING'),
         ('draft', 'DRAFT'),
+        ('read','READ'),
+
     )
     status = models.CharField(
-        max_length=10, choices=STATUS_CHOICE, default='published')
+        max_length=10, choices=STATUS_CHOICE, default='pending')
 
     title = models.CharField(max_length=255, null=True)
     content = models.TextField(null=True)
@@ -265,3 +273,4 @@ class Notification(models.Model):
         null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

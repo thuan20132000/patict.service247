@@ -48,10 +48,13 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 
-from service.helper import Notification
+from service.firebase_notification import Notification
 
 from service.helper import Log, ErrorCode
 
+from local_env.config import SERVER_PATH
+
+import time
 
 log = Log()
 
@@ -460,8 +463,15 @@ def job_post_api(request):
                 for image in data.pop('images_file'):
                     image = Image.objects.create(
                         image=image, image_type="job", job=job)
-                    images.append(ImageSerializer(image).data)
+
+                    # print(image.get_absolute_url())
+                    images.append(image)
                 # job.images = images
+
+            image_url = images[0].get_absolute_url()
+            notification = Notification(
+                title=job.name, body=job.descriptions, image=image_url)
+            notification.send_topic_notification('jobpost')
 
             return Response({
                 "status": True,
@@ -1002,7 +1012,8 @@ def get_candidate_review_api(request, user_id):
         serializer = ReviewSerializer(context, many=True)
 
         return Response(
-            paginator.get_paginated_response(serializer.data,message="Get candidate review successfully",code=ErrorCode.GET_SUCCESS)
+            paginator.get_paginated_response(
+                serializer.data, message="Get candidate review successfully", code=ErrorCode.GET_SUCCESS)
         )
 
     except Exception as e:
@@ -1012,7 +1023,7 @@ def get_candidate_review_api(request, user_id):
             "status": False,
             "data": None,
             "message": message,
-            "code":ErrorCode.UNDEFINED
+            "code": ErrorCode.UNDEFINED
         })
 
 
@@ -1035,7 +1046,8 @@ def get_candidate_images(request, user_id):
         serializer = ImageSerializer(context, many=True)
 
         return Response(
-            paginator.get_paginated_response(serializer.data,message="Get candidate job image successfully",code=ErrorCode.GET_SUCCESS)
+            paginator.get_paginated_response(
+                serializer.data, message="Get candidate job image successfully", code=ErrorCode.GET_SUCCESS)
         )
 
     except Exception as e:
@@ -1045,5 +1057,5 @@ def get_candidate_images(request, user_id):
             "status": False,
             "data": None,
             "message": message,
-            "code":ErrorCode.UNDEFINED
+            "code": ErrorCode.UNDEFINED
         })
