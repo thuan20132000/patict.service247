@@ -1,7 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import messaging
-
+from local_env.config import FILE_PATH
 
 class NotificationConfiguration:
 
@@ -12,7 +12,7 @@ class NotificationConfiguration:
 
 
     def __init__(self,):    
-        path = "/Users/truongthuan/Develop/python/service247/local_env/fcm_key.json"
+        path = FILE_PATH+"/local_env/fcm_key.json"
         self.cred = credentials.Certificate(path)
         self.default_app = firebase_admin.initialize_app(self.cred,options={'projectId':'vieclam24h-3d4e1'})
         self.access_token = self.cred.get_access_token().access_token
@@ -28,7 +28,6 @@ class Notification(NotificationConfiguration):
         
         if not firebase_admin._apps:
             print('app: ',firebase_admin._apps)
-            print("admin token: ",self.access_token)
             NotificationConfiguration()
 
         

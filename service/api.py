@@ -483,6 +483,7 @@ def job_post_api(request):
         })
     except Exception as e:
         print('error: ', e)
+        log.log_message(e)
         return Response({
             "status": False,
             "data": None,
