@@ -3,30 +3,59 @@ from .models import Category, Field, Job, ServiceUser
 from faker import Faker
 import random
 from service.helper import Log
+import concurrent
+import time
 
 fake = Faker()
+log = Log()
 
 
-def gen_users():
+def gen_users_without_thread(number):
     phonenumber_list = ['0982527982',
                         '0917749254', '0904770053', '0974880788', '0983888611']
-    log = Log()
 
     try:
+        start_time = time.time()
 
-        for i in range(len(phonenumber_list)):
+        for i in range(number):
             user = ServiceUser()
             user.username = fake.name()
-            user.phonenumber = phonenumber_list[i]
+            user.phonenumber = fake.msisdn()
             user.set_password("Thuan123")
             user.save()
-        message = f'Success: gen_users'
+
+        finished_time = time.time()
+        message = f'Success: gen_users in {finished_time - start_time}'
         log.log_message(message)
+        print(message)
 
     except Exception as e:
         message = f'Error: {e}'
         print(message)
         log.log_message(message)
+
+
+def gen_users_with_thread(number):
+    start_time = time.time()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        for x in range(number):
+            future = executor.submit(
+                insert_user, fake.msisdn(), fake.name(), "Thuan123")
+            # print('Thread: ', x)
+            # print("result: ", future.result())
+    finished_time = time.time()
+    message = f'Success: gen_users in {finished_time - start_time}'
+    log.log_message(message)
+    print(message)
+
+
+def insert_user(phonenumber, username, password):
+
+    user = ServiceUser()
+    user.username = username
+    user.phonenumber = phonenumber
+    user.set_password(password)
+    user.save()
 
 
 def gen_category():

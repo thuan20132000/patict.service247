@@ -15,7 +15,8 @@ from .models import (
     JobCandidate,
     CandidateUser,
     Review,
-    ServiceUser
+    ServiceUser,
+    Notification as NotificationModel
 )
 from django.utils.text import slugify
 from .serializers import (
@@ -31,7 +32,8 @@ from .serializers import (
     CandidateUserSerializer,
     ReviewSerializer,
     ServiceUserSerializer,
-    ServiceUserSigninSerializer
+    ServiceUserSigninSerializer,
+    NotificationSerializer
 )
 
 import json
@@ -468,7 +470,8 @@ def job_post_api(request):
                     images.append(image)
                 # job.images = images
 
-            image_url = images[0].get_absolute_url()
+            # image_url = images[0].get_absolute_url()
+            image_url = "https://iso.500px.com/wp-content/uploads/2016/11/stock-photo-159533631-1500x1000.jpg"
             notification = Notification(
                 title=job.name, body=job.descriptions, image=image_url)
             notification.send_topic_notification('jobpost')
@@ -1050,6 +1053,67 @@ def get_candidate_images(request, user_id):
             paginator.get_paginated_response(
                 serializer.data, message="Get candidate job image successfully", code=ErrorCode.GET_SUCCESS)
         )
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['GET'])
+def get_candidate_notifications(request, user_id):
+    try:
+
+        page = request.query_params.get('page')
+        page_limit = request.query_params.get('limit')
+        paginator = PaginationBaseCustom()
+        paginator.page_size = 10
+        if page_limit is not None:
+            paginator.page_size = int(page_limit)
+
+        candidate_notification = NotificationModel.objects.filter(
+            user_id=user_id).all()
+
+        context = paginator.paginate_queryset(candidate_notification, request)
+        serializer = NotificationSerializer(context, many=True)
+
+        return Response(
+            paginator.get_paginated_response(
+                serializer.data, message="Get candidate notifications successfully", code=ErrorCode.GET_SUCCESS)
+        )
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['PUT'])
+def update_candidate_notification(request, user_id, notification_id):
+    try:
+
+        candidate_notification = NotificationModel.objects.get(id=notification_id,user_id=user_id)
+        candidate_notification.status = 'read'
+        candidate_notification.save()
+
+        serializer = NotificationSerializer(candidate_notification).data
+
+        return Response({
+            "status": True,
+            "data": serializer,
+            "message": "update candidate notification status cuccessfully",
+            "code": ErrorCode.POST_SUCCESS
+        })
 
     except Exception as e:
         message = f'Error: {e}'

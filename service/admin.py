@@ -7,7 +7,8 @@ from .models import (
     JobCandidate,
     Job,
     CandidateUser,
-    ServiceUser
+    ServiceUser,
+    Notification
 )
 
 
@@ -57,3 +58,9 @@ class AdminServiceUser(admin.ModelAdmin):
                     'status', 'gender', 'created_at')
 
     list_filter = ('gender','status','candidate_user__fields')
+
+
+
+@admin.register(Notification)
+class AdminNotification(admin.ModelAdmin):
+    list_display = ('title','content','user_id','job_id')

@@ -27,7 +27,6 @@ class Notification(NotificationConfiguration):
         self.image = image
         
         if not firebase_admin._apps:
-            print('app: ',firebase_admin._apps)
             NotificationConfiguration()
 
         

@@ -36,6 +36,11 @@ class ServiceUser(AbstractBaseUser):
     def get_absolute_url(self,):
         return '/admin/service/serviceuser/%i'%self.pk
 
+    def insert_user(self,phonenumber,age,username):
+        self.username = username
+        self.phonenumber = phonenumber
+        self.age = age
+        self.save()
 
 
 class Category(models.Model):
@@ -267,8 +272,13 @@ class Notification(models.Model):
     content = models.TextField(null=True)
     image = models.ImageField(upload_to='upload/', blank=True)
     topic = models.CharField(max_length=255, null=True)
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         ServiceUser,
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    job = models.ForeignKey(
+        Job,
         on_delete=models.SET_NULL,
         null=True
     )

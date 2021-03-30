@@ -9,7 +9,9 @@ from .models import (
     JobCandidate,
     CandidateUser,
     Review,
-    ServiceUser
+    ServiceUser,
+    Notification as NotificationModel
+    
 )
 from django.conf import settings
 from rest_framework.pagination import PageNumberPagination, BasePagination
@@ -254,3 +256,14 @@ class CandidateUserSerializer(serializers.ModelSerializer):
         reviews_overall = Review.objects.filter(job_candidate__candidate_id=obj.user_id).aggregate(
             review_level_avg=Avg('review_level'), review_count=Count('id'))
         return reviews_overall
+
+
+
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = NotificationModel
+        depth = 1
+        fields = '__all__'
