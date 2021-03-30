@@ -142,4 +142,5 @@ cython_debug/
 upload/
 migrations/
 .vscode/
+local_env/
 media/

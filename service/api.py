@@ -1,3 +1,4 @@
+from firebase_admin import messaging
 from rest_framework.response import Response
 from .serializers import UserSerializer
 from django.shortcuts import get_object_or_404
@@ -7,21 +8,21 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.postgres.search import SearchVector, SearchRank, SearchQuery
 
 from .models import (
-    User,
     Category,
     Job,
     Field,
     Image,
     JobCandidate,
     CandidateUser,
-    Review
+    Review,
+    ServiceUser,
+    Notification as NotificationModel
 )
 from django.utils.text import slugify
 from .serializers import (
     CategorySerializer,
     FieldSerializer,
     JobSerializer,
-    UserSerializer,
     UserSingupSerializer,
     JobPaginationCustom,
     AuthorSerializer,
@@ -29,7 +30,10 @@ from .serializers import (
     JobCandidateSerializer,
     PaginationBaseCustom,
     CandidateUserSerializer,
-    ReviewSerializer
+    ReviewSerializer,
+    ServiceUserSerializer,
+    ServiceUserSigninSerializer,
+    NotificationSerializer
 )
 
 import json
@@ -46,6 +50,16 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 
+from service.firebase_notification import Notification
+
+from service.helper import Log, ErrorCode
+
+from local_env.config import SERVER_PATH
+
+import time
+
+log = Log()
+
 
 def get_token_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -56,35 +70,37 @@ def get_token_for_user(user):
     }
 
 
-@permission_classes([AllowAny])
-@api_view(['GET'])
-def category_list(request):
-    category = Category.objects.all()
-    serializer = CategorySerializer(category, many=True)
-
-    return Response(serializer.data)
-
-
 # User API
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
 
-    serializer = UserSingupSerializer(data=request.data)
+    try:
+        serializer = UserSingupSerializer(data=request.data)
 
-    if serializer.is_valid():
-        user = serializer.create(validated_data=request.data)
-        user.save()
+        if serializer.is_valid():
+            user = serializer.create(validated_data=request.data)
+            user.save()
+            return Response({
+                "status": True,
+                "user": ServiceUserSerializer(user).data,
+                "message": "User Created Successfully.  Now perform Login to get your token",
+            })
+
+        message = 'Error: %s' % serializer.errors
+        log.log_message(message)
         return Response({
-            "status": True,
-            "user": UserSingupSerializer(user).data,
-            "message": "User Created Successfully.  Now perform Login to get your token",
+            "status": False,
+            "error_messages": serializer.errors
         })
-
-    return Response({
-        "status": False,
-        "error_messages": serializer.errors
-    })
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "message": "Register failed %s" % message,
+            "data": None
+        })
 
 
 @api_view(['POST'])
@@ -92,30 +108,39 @@ def signup(request):
 def signin(request):
 
     try:
-        serializer = UserSerializer(data=request.data)
+        serializer = ServiceUserSigninSerializer(data=request.data)
 
         if serializer.is_valid():
-            username = request.data.get('username')
+            phonenumber = request.data.get('phonenumber')
             password = request.data.get('password')
-            user = authenticate(username=username, password=password)
+
+            user = ServiceUser.objects.filter(
+                phonenumber=phonenumber, status='published').first()
 
             if user is not None:
 
-                refresh = RefreshToken.for_user(user)
+                if user.check_password(password) is True:
 
-                return Response({
-                    "status": True,
-                    "user": UserSerializer(user).data,
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    # "candidate_info":candidate_info
-                })
+                    refresh = RefreshToken.for_user(user)
 
+                    return Response({
+                        "status": True,
+                        "user": ServiceUserSerializer(user).data,
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
+                        # "candidate_info":candidate_info
+                    })
+                else:
+                    return Response({
+                        "status": False,
+                        "user": None,
+                        "message": "Please check password correctly!"
+                    })
             else:
                 return Response({
                     "status": False,
                     "user": None,
-                    "message": "Please check username and password correctly!"
+                    "message": "Please check phonenumber correctly!"
                 })
 
         else:
@@ -130,7 +155,13 @@ def signin(request):
         })
 
     except Exception as error:
-
+        message = f'Error: {error}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "message": "Login failed %s" % message,
+            "data": None
+        })
         return Response({
             "status": False,
             "error": error
@@ -259,6 +290,7 @@ def update_candidate_api(request, user_id):
 
 # Category API
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def category_list_api(request):
     category = Category.objects.all()
     serializer = CategorySerializer(category, many=True)
@@ -310,20 +342,15 @@ def field_detail_api(request, field_id):
 
 @api_view(['GET'])
 def customer_list_api(request):
-    users = User.objects.all()
-    serializer = UserSerializer(users, many=True)
+    users = ServiceUser.objects.all()
+    serializer = ServiceUserSerializer(users, many=True)
 
     return Response(serializer.data)
 
 
 # Job API
 
-@api_view(['GET'])
-def job_suggestion_api(request):
-    job = Job.objects.all()
-    serializer = JobSerializer
-
-
+# Return job list exclude created by author
 @api_view(['GET'])
 def job_list_api(request):
 
@@ -438,8 +465,16 @@ def job_post_api(request):
                 for image in data.pop('images_file'):
                     image = Image.objects.create(
                         image=image, image_type="job", job=job)
-                    images.append(ImageSerializer(image).data)
+
+                    # print(image.get_absolute_url())
+                    images.append(image)
                 # job.images = images
+
+            # image_url = images[0].get_absolute_url()
+            image_url = "https://iso.500px.com/wp-content/uploads/2016/11/stock-photo-159533631-1500x1000.jpg"
+            notification = Notification(
+                title=job.name, body=job.descriptions, image=image_url)
+            notification.send_topic_notification('jobpost')
 
             return Response({
                 "status": True,
@@ -451,6 +486,7 @@ def job_post_api(request):
         })
     except Exception as e:
         print('error: ', e)
+        log.log_message(e)
         return Response({
             "status": False,
             "data": None,
@@ -496,6 +532,8 @@ def job_update_api(request, job_id):
         })
     except Exception as e:
         print('error: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
@@ -517,7 +555,8 @@ def job_delete_api(self, job_id):
             "message": "Delete successfully"
         })
     except Exception as e:
-
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
@@ -608,6 +647,8 @@ def job_filter_api(request):
 
     except Exception as e:
         print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
@@ -640,6 +681,8 @@ def job_search_api(request):
         )
     except Exception as e:
         print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
@@ -660,6 +703,17 @@ def apply_job_position(request, user_id):
 
         if serializer.is_valid():
 
+            candidate_id = data.get('candidate_id')
+            user = CandidateUser.objects.filter(user_id=candidate_id).first()
+            print(user)
+            if user is None:
+                return Response({
+                    "status": False,
+                    "data": None,
+                    "message": "User is not registered candidate",
+                    "code": ErrorCode.CANDIDATE_NOT_REGISTER
+                })
+
             is_applied = JobCandidate.objects.filter(job_id=data.get(
                 'job_id'), candidate_id=data.get('candidate_id')).all()
 
@@ -667,7 +721,9 @@ def apply_job_position(request, user_id):
                 return Response({
                     "status": False,
                     "data": None,
-                    "message": "Candidate was apply this job"
+                    "message": "Candidate was apply this job",
+                    "code": ErrorCode.CANDIDATE_EXIST
+
                 })
 
             # print('is applied: ',is_applied)
@@ -682,33 +738,27 @@ def apply_job_position(request, user_id):
             return Response({
                 "status": True,
                 "data": JobCandidateSerializer(jobcandidate).data,
-                "message": "Create job candidate successfully."
+                "message": "Create job candidate successfully.",
+                "code": ErrorCode.SUCCESS
             })
 
         else:
             return Response({
-                "status": True,
+                "status": False,
                 "data": None,
                 "message": serializer.errors
             })
 
     except Exception as e:
         print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "create failed"
+            "message": "create failed",
+            "code": ErrorCode.UNDEFINED
         })
-
-
-@api_view(['GET'])
-def jobcandidate_get_api(request):
-    jobcandidate = JobCandidate.objects.all()
-
-    return Response({
-        "status": True,
-        "data": JobCandidateSerializer(jobcandidate, many=True).data
-    })
 
 
 # User or Author
@@ -721,7 +771,7 @@ def user_jobs_api(request, user_id):
 
         paginator = JobPaginationCustom()
         paginator.page_size = 10
-        user = User.objects.get(id=user_id)
+        user = ServiceUser.objects.get(id=user_id)
 
         if job_status == "approved":
 
@@ -745,30 +795,46 @@ def user_jobs_api(request, user_id):
             serializer = JobSerializer(context, many=True)
 
         return Response(
-            paginator.get_paginated_response(serializer.data)
+            paginator.get_paginated_response(
+                serializer.data, message="Get job created by user successfully", code=ErrorCode.GET_SUCCESS)
         )
 
     except Exception as e:
         print('error at: ', e)
+        message = f'Error: {e}'
+        print(message)
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "Error"
+            "message": "Error: %s " % e,
+            "code": ErrorCode.UNDEFINED
         })
 
 
-# # User or Author
-# @api_view(['GET'])
-# def user_jobcandidate(request, user_id):
-#     try:
+@api_view(['GET'])
+def get_user_detail(request, user_id):
+    try:
+        user = ServiceUser.objects.get(id=user_id)
+        user_serializer = ServiceUserSerializer(user).data
 
-#     except Exception as e:
-#         print('error at: ', e)
-#         return Response({
-#             "status": False,
-#             "data": None,
-#             "message": "Error"
-#         })
+        return Response({
+            "status": True,
+            "message": "Get user detail successfully",
+            "data": user_serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        print(message)
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "message": "Get user detail failed",
+            "data": None,
+            "code": ErrorCode.UNDEFINED
+        })
 
 
 # User select or cancel candidate by change status
@@ -786,8 +852,6 @@ def modify_job_candidate(request, user_id):
 
             job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
             job_candidate.status = jobcandidate_status
-            # job_candidate.save()
-            # print("job_candidate: ",job_candidate)
 
             if jobcandidate_status == "approved":
                 job_candidate.job.status = jobcandidate_status
@@ -819,28 +883,32 @@ def modify_job_candidate(request, user_id):
             return Response({
                 "status": True,
                 "data": serializer,
-                "message": "success"
+                "message": "Confirmed cuccessfully",
+                "code": ErrorCode.POST_SUCCESS
             })
 
         else:
-            print('jobcandidate_id is none')
+            return Response({
+                "status": False,
+                "data": None,
+                "message": "Errpr: Please check jobcandidate_status and jobcandidate_id",
+                "code": ErrorCode.UNDEFINED
 
-        return Response({
-            "status": False,
-            "data": None,
-            "message": "failed!"
-        })
+            })
 
     except Exception as e:
-        print('error at: ', e)
+        message = f'Error: {e}'
+        print(message)
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "Error "
+            "message": message,
+            "code": ErrorCode.UNDEFINED
         })
 
 
-# User search
+# User search candidate
 @api_view(['GET'])
 def search_candidate_api(request, user_id):
 
@@ -856,54 +924,34 @@ def search_candidate_api(request, user_id):
 
         query = request.query_params.get('query')
 
-        search_vector = SearchVector('descriptions', 'fields__name')
+        search_vector = SearchVector(
+            'candidate_user__descriptions', 'candidate_user__fields__name')
         search_query = SearchQuery(query)
 
-        candidate = CandidateUser.objects.annotate(
+        candidate = ServiceUser.objects.annotate(
             search=search_vector,
-        ).filter(search=search_query).distinct('user')
-
+        ).filter(search=search_query).distinct('id')
         context = paginator.paginate_queryset(candidate, request)
-        serializer = CandidateUserSerializer(context, many=True)
+        serializer = ServiceUserSerializer(context, many=True)
 
         return Response(
-            paginator.get_paginated_response(serializer.data)
+            paginator.get_paginated_response(
+                serializer.data, message="search candidate successfully", code=ErrorCode.GET_SUCCESS)
         )
 
     except Exception as e:
-        print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "Error"
-        })
-
-
-# Candidate
-@api_view(['GET'])
-def get_candidate_detail(request, user_id):
-    try:
-        candidate = CandidateUser.objects.get(user_id=user_id)
-        candidate_info_serializer = UserSerializer(candidate.user).data
-
-        return Response({
-            "status": True,
-            "message": "Get candidate detail successfully",
-            "data": candidate_info_serializer,
-
-        })
-
-    except Exception as e:
-        print('error at: ', e)
-        return Response({
-            "status": False,
-            "data": None,
-            "message": "Error"
+            "message": message,
+            "code": ErrorCode.UNDEFINED
         })
 
 
 @api_view(['GET'])
-def candidate_job_api(request, user_id):
+def get_candidate_job_api(request, user_id):
 
     try:
         page = request.query_params.get('page')
@@ -917,28 +965,41 @@ def candidate_job_api(request, user_id):
 
         apply_status = request.query_params.get('apply_status')
 
-        candidate = User.objects.get(id=user_id)
-        candidate_apply = candidate.usercandidate.filter(
-            status=apply_status).order_by('created_at').all()
+        status_validation = apply_status in JobCandidate.STATUS_LIST
 
-        context = paginator.paginate_queryset(candidate_apply, request)
-        serializer = JobCandidateSerializer(context, many=True)
+        if status_validation and user_id:
+            candidate = ServiceUser.objects.get(id=user_id)
+            candidate_apply = candidate.usercandidate.filter(
+                status=apply_status).order_by('created_at').all()
 
-        return Response(
-            paginator.get_paginated_response(serializer.data)
-        )
+            context = paginator.paginate_queryset(candidate_apply, request)
+            serializer = JobCandidateSerializer(context, many=True)
+
+            return Response(
+                paginator.get_paginated_response(
+                    serializer.data, message="Get candidate applied jobs successfully ", code=ErrorCode.GET_SUCCESS)
+            )
+        else:
+            return Response({
+                "status": False,
+                "data": None,
+                "message": "Please check user_id and apply_status",
+                "code": ErrorCode.VALIDATION
+            })
 
     except Exception as e:
-        print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "Error"
+            "message": message,
+            "code": ErrorCode.UNDEFINED
         })
 
 
 @api_view(['GET'])
-def candidate_review_api(request, user_id):
+def get_candidate_review_api(request, user_id):
     try:
         page = request.query_params.get('page')
         page_limit = request.query_params.get('limit')
@@ -955,15 +1016,18 @@ def candidate_review_api(request, user_id):
         serializer = ReviewSerializer(context, many=True)
 
         return Response(
-            paginator.get_paginated_response(serializer.data)
+            paginator.get_paginated_response(
+                serializer.data, message="Get candidate review successfully", code=ErrorCode.GET_SUCCESS)
         )
 
     except Exception as e:
-        print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "Error"
+            "message": message,
+            "code": ErrorCode.UNDEFINED
         })
 
 
@@ -979,20 +1043,84 @@ def get_candidate_images(request, user_id):
             paginator.page_size = int(page_limit)
 
         images = Image.objects.filter(
-            status='published',candidate_user=user_id,image_type="job"
+            status='published', candidate_user=user_id, image_type="job"
         ).all()
 
         context = paginator.paginate_queryset(images, request)
         serializer = ImageSerializer(context, many=True)
 
         return Response(
-            paginator.get_paginated_response(serializer.data)
+            paginator.get_paginated_response(
+                serializer.data, message="Get candidate job image successfully", code=ErrorCode.GET_SUCCESS)
         )
 
     except Exception as e:
-        print('error at: ', e)
+        message = f'Error: {e}'
+        log.log_message(message)
         return Response({
             "status": False,
             "data": None,
-            "message": "Error"
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['GET'])
+def get_candidate_notifications(request, user_id):
+    try:
+
+        page = request.query_params.get('page')
+        page_limit = request.query_params.get('limit')
+        paginator = PaginationBaseCustom()
+        paginator.page_size = 10
+        if page_limit is not None:
+            paginator.page_size = int(page_limit)
+
+        candidate_notification = NotificationModel.objects.filter(
+            user_id=user_id).all()
+
+        context = paginator.paginate_queryset(candidate_notification, request)
+        serializer = NotificationSerializer(context, many=True)
+
+        return Response(
+            paginator.get_paginated_response(
+                serializer.data, message="Get candidate notifications successfully", code=ErrorCode.GET_SUCCESS)
+        )
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['PUT'])
+def update_candidate_notification(request, user_id, notification_id):
+    try:
+
+        candidate_notification = NotificationModel.objects.get(id=notification_id,user_id=user_id)
+        candidate_notification.status = 'read'
+        candidate_notification.save()
+
+        serializer = NotificationSerializer(candidate_notification).data
+
+        return Response({
+            "status": True,
+            "data": serializer,
+            "message": "update candidate notification status cuccessfully",
+            "code": ErrorCode.POST_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
         })

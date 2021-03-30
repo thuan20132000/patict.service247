@@ -1,0 +1,69 @@
+
+ 2021-03-26 09:54:21.632147 : Error: could not connect to server: Connection refused
+	Is the server running on host "127.0.0.1" and accepting
+	TCP/IP connections on port 5432?
+ at 98 - gen_jobs - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-26 09:54:27.429355 : Success: gen_category at 98 - gen_jobs - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-29 16:38:01.532637 : 'Notification' object has no attribute 'access_token' at 435 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-29 16:38:36.833919 : 'Notification' object has no attribute 'access_token' at 435 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-30 11:26:32.850025 : Error: object of type 'int' has no len() at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:27:01.890402 : Error: randint() takes 3 positional arguments but 4 were given at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:27:38.883427 : Error: empty range for randrange() at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:28:55.114768 : Error: empty range for randrange() at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:29:10.491875 : Error: duplicate key value violates unique constraint "service_serviceuser_phonenumber_a16cdb4b_uniq"
+DETAIL:  Key (phonenumber)=(999999999) already exists.
+ at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:31:44.490883 : Error: 'Generator' object has no attribute 'phonenumber' at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:32:48.343210 : Error: 'Generator' object has no attribute 'phonenumber' at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:33:01.306423 : Error: value too long for type character varying(16)
+ at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:33:46.091305 : Error: value too long for type character varying(16)
+ at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:33:58.154080 : Success: gen_users at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:34:08.648351 : Success: gen_users at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:35:24.132185 : Success: gen_users at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:43:15.687968 : Success: gen_users at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 11:54:42.311352 : Success: gen_users at 10 - gen_users - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:27:10.277099 : Error: name 'time' is not defined at 11 - gen_users_without_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:27:20.747922 : Error: name 'time' is not defined at 11 - gen_users_without_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:27:47.554363 : Success: gen_users in 11.568958759307861 at 12 - gen_users_without_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:29:30.063320 : Success: gen_users in 11.328924894332886 at 38 - gen_users_with_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:31:52.422233 : Success: gen_users in 114.94376873970032 at 38 - gen_users_with_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:34:42.303384 : Success: gen_users in 114.5965633392334 at 13 - gen_users_without_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:46:33.115604 : Success: gen_users in 116.63471007347107 at 13 - gen_users_without_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 14:48:45.071292 : Success: gen_users in 117.21008706092834 at 38 - gen_users_with_thread - /Users/truongthuan/Develop/python/service247/service/seed.py
+
+ 2021-03-30 16:21:51.914875 : Error: 'Notification' object has no attribute 'update' at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-30 16:21:52.850994 : Error: 'Notification' object has no attribute 'update' at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-30 16:23:27.869879 : Error: Notification matching query does not exist. at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-30 16:23:29.637881 : Error: Notification matching query does not exist. at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-30 16:23:30.528358 : Error: Notification matching query does not exist. at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
