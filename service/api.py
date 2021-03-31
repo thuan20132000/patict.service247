@@ -848,6 +848,8 @@ def modify_job_candidate(request, user_id):
 
         status_validation = jobcandidate_status in JobCandidate.STATUS_LIST
 
+        customer_action = ""
+
         if status_validation and jobcandidate_id is not None:
 
             job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
@@ -855,11 +857,12 @@ def modify_job_candidate(request, user_id):
 
             if jobcandidate_status == "approved":
                 job_candidate.job.status = jobcandidate_status
+                customer_action = "Chấp nhận"
 
             elif jobcandidate_status == "confirmed":
                 job_candidate.confirmed_price = data.get('confirmed_price')
                 job_candidate.job.status = jobcandidate_status
-
+                
                 try:
                     review = Review()
                     review.review_level = data.get('review_level')
@@ -872,12 +875,27 @@ def modify_job_candidate(request, user_id):
                     review.review_content = data.get('review_content')
                     review.save()
 
+                customer_action = "Xác nhận"
+
             else:
                 job_candidate.job.status = "published"
 
             job_candidate.job.save()
             job_candidate.save()
 
+            user_token = job_candidate.candidate.notification_token
+            notification_title = "Thông tin ứng tuyển"
+            notificatin_body = "Khách hàng đã %s bạn cho công việc %s"%(customer_action,job_candidate.job.name)
+            notificatin_image = f"https://firebasestorage.googleapis.com/v0/b/vieclam24h-3d4e1.appspot.com/o/FCMImages%2Fiado_1284-30311.jpg?alt=media&token=7fb73580-8e91-4627-9890-72a5d4708854"
+            notification = Notification(notification_title,notificatin_body,notificatin_image)
+            send_res = notification.send_to_one(user_token)
+            if send_res == True:
+                notification_model = NotificationModel()
+                notification_model.title = notification_title
+                notification_model.user_id = job_candidate.candidate.pk
+                notification_model.job_id = job_candidate.job.pk
+                notification_model.save()
+            
             serializer = JobCandidateSerializer(job_candidate).data
 
             return Response({
@@ -1148,7 +1166,7 @@ def update_user_notification_token(request, user_id,):
 
         return Response({
             "status": True,
-            "message": "update user notification successfully",
+            "message": "update user notification token successfully",
             "code": ErrorCode.POST_SUCCESS
         })
 
