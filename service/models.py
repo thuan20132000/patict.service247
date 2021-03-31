@@ -5,6 +5,7 @@ from django.urls import reverse
 # Preparing to transfer from User to ServiceUser
 from local_env.config import SERVER_PATH
 
+
 class ServiceUser(AbstractBaseUser):
 
     STATUS_CHOICE = (
@@ -13,30 +14,30 @@ class ServiceUser(AbstractBaseUser):
         ('pending', 'PENDING')
     )
 
-    phonenumber = models.CharField(max_length=16, null=None,unique=True)
+    phonenumber = models.CharField(max_length=16, null=None, unique=True)
     age = models.IntegerField(max_length=120, null=True)
     username = models.CharField(max_length=255)
     gender = models.CharField(max_length=25, null=True)
-    profile_image = models.ImageField(upload_to='upload/',blank=True,null=True)
+    profile_image = models.ImageField(
+        upload_to='upload/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICE, default='published')
 
-    notification_token = models.CharField(blank=True,null=True,editable=False,max_length=255)
+    notification_token = models.CharField(
+        blank=True, null=True, editable=False, max_length=255)
 
     REQUIRED_FIELDS = ['phonenumber']
     USERNAME_FIELD = "phonenumber"
 
-
     def __str__(self,):
-        return "Service User:  %s %s "% (self.username,self.phonenumber)
-
+        return "Service User:  %s %s " % (self.username, self.phonenumber)
 
     def get_absolute_url(self,):
-        return '/admin/service/serviceuser/%i'%self.pk
+        return '/admin/service/serviceuser/%i' % self.pk
 
-    def insert_user(self,phonenumber,age,username):
+    def insert_user(self, phonenumber, age, username):
         self.username = username
         self.phonenumber = phonenumber
         self.age = age
@@ -251,18 +252,16 @@ class Image(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICE, default='published')
 
-
-
     def get_absolute_url(self,):
 
-        return '%s/media/%s'%(SERVER_PATH,self.image)
+        return '%s/media/%s' % (SERVER_PATH, self.image)
 
 
 class Notification(models.Model):
     STATUS_CHOICE = (
         ('pending', 'PENDING'),
         ('draft', 'DRAFT'),
-        ('read','READ'),
+        ('read', 'READ'),
 
     )
     status = models.CharField(
@@ -284,3 +283,4 @@ class Notification(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+ 
