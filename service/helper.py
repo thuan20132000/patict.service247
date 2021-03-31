@@ -5,7 +5,7 @@ import datetime
 import inspect
 import logging
 import concurrent
-from service.models import Notification as NotificationModel
+from service.models import Notification as NotificationModel,ServiceUser
 
 
 """
@@ -19,7 +19,7 @@ class Notification:
 
     def __init__(self,):
         self.cred = credentials.Certificate(
-            "/Users/truongthuan/Develop/python/service247/local_env/vieclam24h-3d4e1-firebase-adminsdk-imaaw-daa37f2726.json")
+            "/Users/truongthuan/Develop/python/service247/local_env/fcm_key.json")
         firebase_admin.initialize_app(self.cred)
 
     def send_notification(self, token, user, title, content, image):
@@ -39,6 +39,38 @@ class Notification:
             # Response is a message ID string.
             print('Successfully sent message:', response)
             return True
+
+        except Exception as e:
+            log = Log()
+            log.log_message(e)
+            return False
+
+    def send_to_one(self, user_id, title, content, image):
+        try:
+
+            message = messaging.Message(
+                data={
+                    'score': '850',
+                    'time': '2:45',
+                },
+                token=registration_token,
+            )
+            response = messaging.send(message)
+            # Response is a message ID string.
+            print('Successfully sent message:', response)
+
+        except Exception as e:
+            log = Log()
+            log.log_message(e)
+            return False
+
+    def get_user_token(self, user_id):
+
+        try:
+
+            user = ServiceUser.objects.get(pk=user_id)
+            print(user)
+            
 
         except Exception as e:
             log = Log()
@@ -106,13 +138,14 @@ class UserNotificationHandler:
     def print_user_list(self,):
         print("user list: ", self.user_list)
 
-    def insert_user_notification(self, title,user_id,job_id):
+    def insert_user_notification(self, title, user_id, job_id):
         notification = NotificationModel()
         notification.title = title
         # notification.content = content
         notification.user_id = user_id
         notification.job_id = job_id
         notification.save()
+
     def handle_notification_thread(self, title, body, image_url, job_id):
 
         if len(self.user_list) < 0:
@@ -122,4 +155,5 @@ class UserNotificationHandler:
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
             for user in user_list:
-                future =  executor.submit(self.insert_user_notification,title,user.pk,job_id)
+                future = executor.submit(
+                    self.insert_user_notification, title, user.pk, job_id)

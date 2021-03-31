@@ -738,7 +738,7 @@ def apply_job_position(request, user_id):
             return Response({
                 "status": True,
                 "data": JobCandidateSerializer(jobcandidate).data,
-                "message": "Create job candidate successfully.",
+                "message": "Apply job position successfully.",
                 "code": ErrorCode.SUCCESS
             })
 
@@ -879,11 +879,11 @@ def modify_job_candidate(request, user_id):
             job_candidate.save()
 
             serializer = JobCandidateSerializer(job_candidate).data
-
+            
             return Response({
                 "status": True,
                 "data": serializer,
-                "message": "Confirmed cuccessfully",
+                "message": "Modified cuccessfully",
                 "code": ErrorCode.POST_SUCCESS
             })
 
