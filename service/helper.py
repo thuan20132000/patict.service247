@@ -157,3 +157,19 @@ class UserNotificationHandler:
             for user in user_list:
                 future = executor.submit(
                     self.insert_user_notification, title, user.pk, job_id)
+
+
+class ValidationInput:
+
+
+    def __init__(self,*valid_data):
+        self.input_data = list()
+        for x in valid_data:
+            self.input_data.append(x)
+
+
+    def is_valid(self,):
+        for x in self.input_data:
+            if x is None or len(x) < 10:
+                return False
+        return True

@@ -52,7 +52,7 @@ from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
 
 from service.firebase_notification import Notification
 
-from service.helper import Log, ErrorCode
+from service.helper import Log, ErrorCode, ValidationInput
 
 from local_env.config import SERVER_PATH
 
@@ -879,7 +879,7 @@ def modify_job_candidate(request, user_id):
             job_candidate.save()
 
             serializer = JobCandidateSerializer(job_candidate).data
-            
+
             return Response({
                 "status": True,
                 "data": serializer,
@@ -1102,7 +1102,8 @@ def get_candidate_notifications(request, user_id):
 def update_candidate_notification(request, user_id, notification_id):
     try:
 
-        candidate_notification = NotificationModel.objects.get(id=notification_id,user_id=user_id)
+        candidate_notification = NotificationModel.objects.get(
+            id=notification_id, user_id=user_id)
         candidate_notification.status = 'read'
         candidate_notification.save()
 
@@ -1111,7 +1112,43 @@ def update_candidate_notification(request, user_id, notification_id):
         return Response({
             "status": True,
             "data": serializer,
-            "message": "update candidate notification status cuccessfully",
+            "message": "update candidate notification status successfully",
+            "code": ErrorCode.POST_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['PUT'])
+def update_user_notification_token(request, user_id,):
+    try:
+        notification_token = request.data.get('token')
+        validate_data = ValidationInput(notification_token)
+
+        if validate_data.is_valid() is False:
+            return Response({
+                "status": False,
+                "data": None,
+                "message": "Data is not valid",
+                "code": ErrorCode.VALIDATION
+            })
+        
+
+        user = ServiceUser.objects.get(pk=user_id)
+        user.notification_token = notification_token
+        user.save()
+
+        return Response({
+            "status": True,
+            "message": "update user notification successfully",
             "code": ErrorCode.POST_SUCCESS
         })
 
