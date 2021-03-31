@@ -738,8 +738,8 @@ def apply_job_position(request, user_id):
             return Response({
                 "status": True,
                 "data": JobCandidateSerializer(jobcandidate).data,
-                "message": "Create job candidate successfully.",
-                "code": ErrorCode.SUCCESS
+                "message": "Apply job position successfully.",
+                "code": ErrorCode.GET_SUCCESS
             })
 
         else:
