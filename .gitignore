@@ -144,3 +144,4 @@ migrations/
 .vscode/
 local_env/
 media/
+service247/settings.py
