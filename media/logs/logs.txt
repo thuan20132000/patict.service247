@@ -67,3 +67,5 @@ DETAIL:  Key (phonenumber)=(999999999) already exists.
  2021-03-30 16:23:29.637881 : Error: Notification matching query does not exist. at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
 
  2021-03-30 16:23:30.528358 : Error: Notification matching query does not exist. at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-03-31 10:19:57.111068 : Error: type object 'ErrorCode' has no attribute 'SUCCESS' at 694 - apply_job_position - /Users/truongthuan/Develop/python/service247/service/api.py
