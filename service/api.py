@@ -892,6 +892,7 @@ def modify_job_candidate(request, user_id):
             if send_res == True:
                 notification_model = NotificationModel()
                 notification_model.title = notification_title
+                notification_model.content = notificatin_body
                 notification_model.user_id = job_candidate.candidate.pk
                 notification_model.job_id = job_candidate.job.pk
                 notification_model.save()
@@ -1095,7 +1096,7 @@ def get_candidate_notifications(request, user_id):
             paginator.page_size = int(page_limit)
 
         candidate_notification = NotificationModel.objects.filter(
-            user_id=user_id).all()
+            user_id=user_id).order_by('-created_at').all()
 
         context = paginator.paginate_queryset(candidate_notification, request)
         serializer = NotificationSerializer(context, many=True)
