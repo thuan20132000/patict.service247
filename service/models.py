@@ -283,4 +283,25 @@ class Notification(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
- 
+
+
+class JobCandidateTracking(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT')
+    )
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    action_title = models.CharField(max_length=150,null=True)
+    action_content = models.CharField(max_length=255,null=True)
+    
+    job_candidate = models.ForeignKey(
+        JobCandidate,
+        on_delete=models.CASCADE,
+        related_name='jobcandidate_tracking'        
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
