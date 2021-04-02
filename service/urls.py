@@ -28,7 +28,8 @@ from .api import (
     get_user_detail,
     get_candidate_notifications,
     update_candidate_notification,
-    update_user_notification_token
+    update_user_notification_token,
+    get_jobcandidate_detail
     
 )
 
@@ -74,6 +75,8 @@ urlpatterns = [
     path('api/v1/candidate/<int:user_id>/images',get_candidate_images,name="get_candidate_image"),
     path('api/v1/candidate/<int:user_id>/notifications',get_candidate_notifications,name="get_candidate_notifications"),
     path('api/v1/candidate/<int:user_id>/notification/<int:notification_id>',update_candidate_notification,name="update_candidate_notification"),
+    path('api/v1/candidate/<int:user_id>/jobcandidate/<int:jobcandidate_id>/detail',get_jobcandidate_detail,name="get_jobcandidate_detail"),
+    
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 

@@ -16,7 +16,8 @@ from .models import (
     CandidateUser,
     Review,
     ServiceUser,
-    Notification as NotificationModel
+    Notification as NotificationModel,
+    JobCandidateTracking
 )
 from django.utils.text import slugify
 from .serializers import (
@@ -851,7 +852,7 @@ def modify_job_candidate(request, user_id):
         customer_action = ""
 
         if status_validation and jobcandidate_id is not None:
-
+            jobcandidate_tracking = JobCandidateTracking()
             job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
             job_candidate.status = jobcandidate_status
 
@@ -862,7 +863,7 @@ def modify_job_candidate(request, user_id):
             elif jobcandidate_status == "confirmed":
                 job_candidate.confirmed_price = data.get('confirmed_price')
                 job_candidate.job.status = jobcandidate_status
-                
+
                 try:
                     review = Review()
                     review.review_level = data.get('review_level')
@@ -877,17 +878,26 @@ def modify_job_candidate(request, user_id):
 
                 customer_action = "Xác nhận"
 
+            elif jobcandidate_status == "cancel":
+                customer_action = "Từ chối"
             else:
                 job_candidate.job.status = "published"
 
             job_candidate.job.save()
             job_candidate.save()
+            jobcandidate_tracking.action_title = customer_action
+            jobcandidate_tracking.action_content = "Khách hàng đã %s ứng tuyển của bạn" % customer_action
+            jobcandidate_tracking.job_candidate = job_candidate
+            jobcandidate_tracking.save()
+
 
             user_token = job_candidate.candidate.notification_token
             notification_title = "Thông tin ứng tuyển"
-            notificatin_body = "Khách hàng đã %s bạn cho công việc %s"%(customer_action,job_candidate.job.name)
+            notificatin_body = "Khách hàng đã %s bạn cho công việc %s" % (
+                customer_action, job_candidate.job.name)
             notificatin_image = f"https://firebasestorage.googleapis.com/v0/b/vieclam24h-3d4e1.appspot.com/o/FCMImages%2Fiado_1284-30311.jpg?alt=media&token=7fb73580-8e91-4627-9890-72a5d4708854"
-            notification = Notification(notification_title,notificatin_body,notificatin_image)
+            notification = Notification(
+                notification_title, notificatin_body, notificatin_image)
             send_res = notification.send_to_one(user_token)
             if send_res == True:
                 notification_model = NotificationModel()
@@ -896,7 +906,7 @@ def modify_job_candidate(request, user_id):
                 notification_model.user_id = job_candidate.candidate.pk
                 notification_model.job_id = job_candidate.job.pk
                 notification_model.save()
-            
+
             serializer = JobCandidateSerializer(job_candidate).data
 
             return Response({
@@ -1159,7 +1169,6 @@ def update_user_notification_token(request, user_id,):
                 "message": "Data is not valid",
                 "code": ErrorCode.VALIDATION
             })
-        
 
         user = ServiceUser.objects.get(pk=user_id)
         user.notification_token = notification_token
@@ -1170,6 +1179,43 @@ def update_user_notification_token(request, user_id,):
             "message": "update user notification token successfully",
             "code": ErrorCode.POST_SUCCESS
         })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+
+@api_view(['GET'])
+def get_jobcandidate_detail(request,user_id,jobcandidate_id):
+    
+    try:
+        
+        user_role = request.query_params.get('user_role')
+                
+        job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
+        serializer = JobCandidateSerializer(job_candidate)
+        jobcandidate_info = serializer.data
+        jobcandidate_tracking = serializer.get_jobcandidate_tracking(job_candidate)
+            
+        
+        return Response({
+            "status": True,
+            "message": "get jobcandidate detail successfully",
+            "data":{
+                "jobcandidate_info":jobcandidate_info,
+                "jobcandidate_tracking":jobcandidate_tracking
+            },
+            "code": ErrorCode.GET_SUCCESS
+        })
+        
+
 
     except Exception as e:
         message = f'Error: {e}'

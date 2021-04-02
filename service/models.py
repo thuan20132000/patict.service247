@@ -4,7 +4,7 @@ from django.urls import reverse
 # Create your models here.
 # Preparing to transfer from User to ServiceUser
 from local_env.config import SERVER_PATH
-
+from uuid import uuid1
 
 class ServiceUser(AbstractBaseUser):
 

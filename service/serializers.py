@@ -10,7 +10,8 @@ from .models import (
     CandidateUser,
     Review,
     ServiceUser,
-    Notification as NotificationModel
+    Notification as NotificationModel,
+    JobCandidateTracking
     
 )
 from django.conf import settings
@@ -168,6 +169,9 @@ class JobCandidateSerializer(serializers.ModelSerializer):
     def get_candidate(self, obj):
         return ServiceUserSerializer(obj.candidate).data
 
+    def get_jobcandidate_tracking(self,obj):
+        return JobCandidateTrackingSerializer(obj.jobcandidate_tracking.all(),many=True).data
+
 
 class JobPaginationCustom(PageNumberPagination):
 
@@ -266,4 +270,14 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificationModel
         depth = 1
+        fields = '__all__'
+
+
+
+
+
+class JobCandidateTrackingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model  = JobCandidateTracking
         fields = '__all__'
