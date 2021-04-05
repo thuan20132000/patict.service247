@@ -470,11 +470,12 @@ def job_post_api(request):
                     # print(image.get_absolute_url())
                     images.append(image)
                 # job.images = images
-
-            # image_url = images[0].get_absolute_url()
-            image_url = "https://iso.500px.com/wp-content/uploads/2016/11/stock-photo-159533631-1500x1000.jpg"
+            notification_image_url = ''
+            if len(images) > 0:
+                notification_image_url = images[0].get_absolute_url()
+            # image_url = "https://iso.500px.com/wp-content/uploads/2016/11/stock-photo-159533631-1500x1000.jpg"
             notification = Notification(
-                title=job.name, body=job.descriptions, image=image_url)
+                title=job.name, body=job.descriptions, image=notification_image_url)
             notification.send_topic_notification('jobpost')
 
             return Response({
