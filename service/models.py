@@ -305,3 +305,16 @@ class JobCandidateTracking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+class UserNotificationConfiguration(models.Model):
+
+    post_job_notification = models.BooleanField(default=False)
+    apply_job_notification = models.BooleanField(default=True)
+    user_job_notification = models.BooleanField(default=True)
+    user_message_notification = models.BooleanField(default=False)
+
+    user = models.OneToOneField(
+        ServiceUser,
+        on_delete=models.CASCADE,
+        primary_key=True
+    )

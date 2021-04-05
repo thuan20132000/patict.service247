@@ -11,7 +11,8 @@ from .models import (
     Review,
     ServiceUser,
     Notification as NotificationModel,
-    JobCandidateTracking
+    JobCandidateTracking,
+    UserNotificationConfiguration
     
 )
 from django.conf import settings
@@ -281,3 +282,12 @@ class JobCandidateTrackingSerializer(serializers.ModelSerializer):
     class Meta:
         model  = JobCandidateTracking
         fields = '__all__'
+
+
+
+class UserNotificationConfigurationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserNotificationConfiguration
+        fields = '__all__'
+        

@@ -69,3 +69,27 @@ DETAIL:  Key (phonenumber)=(999999999) already exists.
  2021-03-30 16:23:30.528358 : Error: Notification matching query does not exist. at 1101 - update_candidate_notification - /Users/truongthuan/Develop/python/service247/service/api.py
 
  2021-03-31 10:19:57.111068 : Error: type object 'ErrorCode' has no attribute 'SUCCESS' at 694 - apply_job_position - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 14:51:33.820369 : list index out of range at 438 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 14:52:07.398314 : list index out of range at 438 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 15:03:53.186278 : list index out of range at 438 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 15:04:21.147220 : list index out of range at 438 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 16:52:58.060612 : Error: 'tuple' object has no attribute 'post_job_notification' at 1258 - update_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 17:04:19.260425 : Error: name 'user_notification_config' is not defined at 1257 - update_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 17:07:24.545456 : Error: insert or update on table "service_usernotificationconfiguration" violates foreign key constraint "service_usernotifica_user_id_308b4ad1_fk_service_s"
+DETAIL:  Key (user_id)=(33) is not present in table "service_serviceuser".
+ at 1230 - get_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 17:07:30.122303 : Error: insert or update on table "service_usernotificationconfiguration" violates foreign key constraint "service_usernotifica_user_id_308b4ad1_fk_service_s"
+DETAIL:  Key (user_id)=(34) is not present in table "service_serviceuser".
+ at 1230 - get_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 17:19:46.177840 : Error: ['“true” value must be either True or False.'] at 1261 - update_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-05 17:23:04.118988 : Error: ['“Falses” value must be either True or False.'] at 1261 - update_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py

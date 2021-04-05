@@ -8,7 +8,8 @@ from .models import (
     Job,
     CandidateUser,
     ServiceUser,
-    Notification
+    Notification,
+    UserNotificationConfiguration
 )
 
 
@@ -26,11 +27,12 @@ class AdminField(admin.ModelAdmin):
 @admin.register(Job)
 class AdminJob(admin.ModelAdmin):
     prepopulated_fields = {"slug": ('name',)}
-    list_display = ('name','status', 'descriptions', 'location', 'get_author','created_at')
+    list_display = ('name', 'status', 'descriptions',
+                    'location', 'get_author', 'created_at')
 
     def get_author(self, obj):
         if obj.name:
-            return mark_safe('<a href="%s">%s</a>' % (obj.author.get_absolute_url(),obj.author.username))
+            return mark_safe('<a href="%s">%s</a>' % (obj.author.get_absolute_url(), obj.author.username))
         else:
             return 'Not Available'
 
@@ -57,10 +59,15 @@ class AdminServiceUser(admin.ModelAdmin):
     list_display = ('username', 'phonenumber',
                     'status', 'gender', 'created_at')
 
-    list_filter = ('gender','status','candidate_user__fields')
-
+    list_filter = ('gender', 'status', 'candidate_user__fields')
 
 
 @admin.register(Notification)
 class AdminNotification(admin.ModelAdmin):
-    list_display = ('title','content','user_id','job_id')
+    list_display = ('title', 'content', 'user_id', 'job_id')
+
+
+@admin.register(UserNotificationConfiguration)
+class AdminUserNotificationConfiguration(admin.ModelAdmin):
+    list_display = ('post_job_notification', 'apply_job_notification',
+                    'user_job_notification', 'user_message_notification','user_id')
