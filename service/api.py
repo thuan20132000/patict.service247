@@ -17,7 +17,8 @@ from .models import (
     Review,
     ServiceUser,
     Notification as NotificationModel,
-    JobCandidateTracking
+    JobCandidateTracking,
+    UserNotificationConfiguration
 )
 from django.utils.text import slugify
 from .serializers import (
@@ -34,7 +35,8 @@ from .serializers import (
     ReviewSerializer,
     ServiceUserSerializer,
     ServiceUserSigninSerializer,
-    NotificationSerializer
+    NotificationSerializer,
+    UserNotificationConfigurationSerializer
 )
 
 import json
@@ -891,7 +893,6 @@ def modify_job_candidate(request, user_id):
             jobcandidate_tracking.job_candidate = job_candidate
             jobcandidate_tracking.save()
 
-
             user_token = job_candidate.candidate.notification_token
             notification_title = "Thông tin ứng tuyển"
             notificatin_body = "Khách hàng đã %s bạn cho công việc %s" % (
@@ -1192,32 +1193,103 @@ def update_user_notification_token(request, user_id,):
         })
 
 
-
 @api_view(['GET'])
-def get_jobcandidate_detail(request,user_id,jobcandidate_id):
-    
+def get_jobcandidate_detail(request, user_id, jobcandidate_id):
+
     try:
-        
+
         user_role = request.query_params.get('user_role')
-                
+
         job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
         serializer = JobCandidateSerializer(job_candidate)
         jobcandidate_info = serializer.data
-        jobcandidate_tracking = serializer.get_jobcandidate_tracking(job_candidate)
-            
-        
+        jobcandidate_tracking = serializer.get_jobcandidate_tracking(
+            job_candidate)
+
         return Response({
             "status": True,
             "message": "get jobcandidate detail successfully",
-            "data":{
-                "jobcandidate_info":jobcandidate_info,
-                "jobcandidate_tracking":jobcandidate_tracking
+            "data": {
+                "jobcandidate_info": jobcandidate_info,
+                "jobcandidate_tracking": jobcandidate_tracking
             },
             "code": ErrorCode.GET_SUCCESS
         })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['GET'])
+def get_user_notification_configuration(request, user_id):
+    try:
+        user_notification_config_get, user_notification_config_create = UserNotificationConfiguration.objects.get_or_create(
+            user_id=user_id)
+
+        if user_notification_config_get:
+            serializer = UserNotificationConfigurationSerializer(
+                user_notification_config_get).data
+        else:
+            serializer = UserNotificationConfigurationSerializer(
+                user_notification_config_create).data
+
+        return Response({
+            "status": True,
+            "message": "get user notification configuration success.",
+            "data": serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['PUT'])
+def update_user_notification_configuration(request, user_id):
+    try:
+
+        post_job_notification = request.data.get('post_job_notification')
+        apply_job_notification = request.data.get('apply_job_notification')
+        user_job_notification = request.data.get('user_job_notification')
+        user_message_notification = request.data.get(
+            'user_message_notification')
+
+        user_notification_config = UserNotificationConfiguration.objects.filter(
+            user_id=user_id).first()
+        if post_job_notification:
+            user_notification_config.post_job_notification = post_job_notification
+        if apply_job_notification:
+            user_notification_config.apply_job_notification = apply_job_notification
+        if user_job_notification:
+            user_notification_config.user_job_notification = user_job_notification
+        if user_message_notification:
+            user_notification_config.user_message_notification = user_message_notification
+
+        user_notification_config.save()
+
+        serializer = UserNotificationConfigurationSerializer(
+            user_notification_config).data
+        return Response({
+            "status": True,
+            "message": "get user notification configuration success.",
+            "data": serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
         
-
-
     except Exception as e:
         message = f'Error: {e}'
         log.log_message(message)

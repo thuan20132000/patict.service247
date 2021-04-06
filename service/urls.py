@@ -29,7 +29,9 @@ from .api import (
     get_candidate_notifications,
     update_candidate_notification,
     update_user_notification_token,
-    get_jobcandidate_detail
+    get_jobcandidate_detail,
+    get_user_notification_configuration,
+    update_user_notification_configuration,
     
 )
 
@@ -65,7 +67,9 @@ urlpatterns = [
     path('api/v1/user/<int:user_id>/search-candidate',search_candidate_api,name='search_candidate_api'),
     # update user notification token
     path('api/v1/user/<int:user_id>/notification-token',update_user_notification_token,name='update_user_notificatin_api'),
-
+    # get user notification configurations
+    path('api/v1/user/<int:user_id>/notification-configuration',get_user_notification_configuration,name='get_user_notification_configuration'),
+    path('api/v1/user/<int:user_id>/notification-configuration/update',update_user_notification_configuration,name='update_user_notification_configuration'),
 
     # Get all jobs that candidates has been applied by job status
     path('api/v1/candidate/<int:user_id>/jobs',get_candidate_job_api,name='candidate_jobs_api'),
