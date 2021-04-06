@@ -799,14 +799,14 @@ def user_jobs_api(request, user_id):
         if job_status == "approved":
 
             user_approved_jobs = JobCandidate.objects.filter(
-                job__status="approved", job__author_id=user_id).order_by('-updated_at').all()
+                status="approved", job__author_id=user_id).order_by('-updated_at').all()
             context = paginator.paginate_queryset(user_approved_jobs, request)
             serializer = JobCandidateSerializer(context, many=True)
 
         elif job_status == "confirmed":
 
             user_confirmed_jobs = JobCandidate.objects.filter(
-                job__status="confirmed", job__author_id=user_id).order_by('-updated_at').all()
+                status="confirmed", job__author_id=user_id).order_by('-updated_at').all()
             context = paginator.paginate_queryset(user_confirmed_jobs, request)
             serializer = JobCandidateSerializer(context, many=True)
 
