@@ -274,12 +274,14 @@ class Notification(models.Model):
     user = models.ForeignKey(
         ServiceUser,
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        related_name='user_notification'
     )
     job = models.ForeignKey(
         Job,
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
+        related_name='job_notification'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -316,5 +318,6 @@ class UserNotificationConfiguration(models.Model):
     user = models.OneToOneField(
         ServiceUser,
         on_delete=models.CASCADE,
-        primary_key=True
+        primary_key=True,
+        related_name="user_notification_config"
     )

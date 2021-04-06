@@ -60,6 +60,7 @@ from service.helper import Log, ErrorCode, ValidationInput
 from local_env.config import SERVER_PATH
 
 import time
+import concurrent
 
 log = Log()
 
@@ -473,12 +474,30 @@ def job_post_api(request):
                     images.append(image)
                 # job.images = images
             notification_image_url = ''
+
             if len(images) > 0:
                 notification_image_url = images[0].get_absolute_url()
             # image_url = "https://iso.500px.com/wp-content/uploads/2016/11/stock-photo-159533631-1500x1000.jpg"
             notification = Notification(
                 title=job.name, body=job.descriptions, image=notification_image_url)
             notification.send_topic_notification('jobpost')
+
+            notification_candidate_list = CandidateUser.objects.filter(
+                user__user_notification_config__post_job_notification=True).all()
+
+            notification_title = "Công việc vừa đăng phù hợp với bạn tesy"
+            notification_body = job.descriptions
+
+            print('candidate list: ',notification_candidate_list)
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+                for candidate in notification_candidate_list:
+                    candidate_notification = NotificationModel()
+                    candidate_notification.title = notification_title
+                    candidate_notification.content = notification_body
+                    candidate_notification.user_id = candidate.user.pk
+                    candidate_notification.job_id = job.pk
+                    candidate_notification.save()
 
             return Response({
                 "status": True,
@@ -1289,7 +1308,7 @@ def update_user_notification_configuration(request, user_id):
             "data": serializer,
             "code": ErrorCode.GET_SUCCESS
         })
-        
+
     except Exception as e:
         message = f'Error: {e}'
         log.log_message(message)
