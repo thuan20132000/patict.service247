@@ -908,7 +908,7 @@ def modify_job_candidate(request, user_id):
             job_candidate.job.save()
             job_candidate.save()
             jobcandidate_tracking.action_title = customer_action
-            jobcandidate_tracking.action_content = "Khách hàng đã %s ứng tuyển của bạn" % customer_action
+            jobcandidate_tracking.action_content = "%s ứng tuyển" % customer_action
             jobcandidate_tracking.job_candidate = job_candidate
             jobcandidate_tracking.save()
 
@@ -1213,7 +1213,7 @@ def update_user_notification_token(request, user_id,):
 
 
 @api_view(['GET'])
-def get_jobcandidate_detail(request, user_id, jobcandidate_id):
+def get_jobcandidate_detail_trackking(request, user_id, jobcandidate_id):
 
     try:
 

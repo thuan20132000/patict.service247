@@ -162,7 +162,7 @@ class JobCandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobCandidate
         fields = '__all__'
-        depth = 1
+        depth = 2
 
     def get_review(self, obj):
         return ReviewSerializer(obj.reviews.filter(status="published").all(), many=True).data
@@ -171,7 +171,7 @@ class JobCandidateSerializer(serializers.ModelSerializer):
         return ServiceUserSerializer(obj.candidate).data
 
     def get_jobcandidate_tracking(self,obj):
-        return JobCandidateTrackingSerializer(obj.jobcandidate_tracking.all(),many=True).data
+        return JobCandidateTrackingSerializer(obj.jobcandidate_tracking.orderBy('created_at').all(),many=True).data
 
 
 class JobPaginationCustom(PageNumberPagination):
