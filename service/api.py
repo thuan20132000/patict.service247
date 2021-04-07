@@ -488,6 +488,7 @@ def job_post_api(request):
             notification_title = "Công việc vừa đăng phù hợp với bạn tesy"
             notification_body = job.descriptions
 
+
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 for candidate in notification_candidate_list:
                     candidate_notification = NotificationModel()
@@ -806,14 +807,14 @@ def user_jobs_api(request, user_id):
             user_confirmed_jobs = JobCandidate.objects.filter(
                 status="confirmed", job__author_id=user_id).order_by('-updated_at').all()
             context = paginator.paginate_queryset(user_confirmed_jobs, request)
-            serializer = JobCandidateSerializer(context, many=True)
+            serializer = JobCandidateSerializer(context, many = True)
 
         else:
 
-            user_jobs = user.jobs.filter(
-                status="published").order_by('-created_at').all()
-            context = paginator.paginate_queryset(user_jobs, request)
-            serializer = JobSerializer(context, many=True)
+            user_jobs=user.jobs.filter(
+                status = "published").order_by('-created_at').all()
+            context=paginator.paginate_queryset(user_jobs, request)
+            serializer=JobSerializer(context, many = True)
 
         return Response(
             paginator.get_paginated_response(
@@ -825,7 +826,7 @@ def user_jobs_api(request, user_id):
 
     except Exception as e:
         print('error at: ', e)
-        message = f'Error: {e}'
+        message=f'Error: {e}'
         print(message)
         log.log_message(message)
         return Response({
@@ -839,8 +840,8 @@ def user_jobs_api(request, user_id):
 @ api_view(['GET'])
 def get_user_detail(request, user_id):
     try:
-        user = ServiceUser.objects.get(id=user_id)
-        user_serializer = ServiceUserSerializer(user).data
+        user=ServiceUser.objects.get(id = user_id)
+        user_serializer=ServiceUserSerializer(user).data
 
         return Response({
             "status": True,
@@ -850,7 +851,7 @@ def get_user_detail(request, user_id):
         })
 
     except Exception as e:
-        message = f'Error: {e}'
+        message=f'Error: {e}'
         print(message)
         log.log_message(message)
         return Response({
@@ -866,70 +867,70 @@ def get_user_detail(request, user_id):
 def modify_job_candidate(request, user_id):
     try:
 
-        data = request.data
-        jobcandidate_id = data.get('jobcandidate_id')
-        jobcandidate_status = data.get('status')
+        data=request.data
+        jobcandidate_id=data.get('jobcandidate_id')
+        jobcandidate_status=data.get('status')
 
-        status_validation = jobcandidate_status in JobCandidate.STATUS_LIST
+        status_validation=jobcandidate_status in JobCandidate.STATUS_LIST
 
-        customer_action = ""
+        customer_action=""
 
         if status_validation and jobcandidate_id is not None:
-            jobcandidate_tracking = JobCandidateTracking()
-            job_candidate = JobCandidate.objects.get(id=jobcandidate_id)
-            job_candidate.status = jobcandidate_status
+            jobcandidate_tracking=JobCandidateTracking()
+            job_candidate=JobCandidate.objects.get(id = jobcandidate_id)
+            job_candidate.status=jobcandidate_status
 
             if jobcandidate_status == "approved":
-                job_candidate.job.status = jobcandidate_status
-                customer_action = "Chấp nhận"
+                job_candidate.job.status=jobcandidate_status
+                customer_action="Chấp nhận"
 
             elif jobcandidate_status == "confirmed":
-                job_candidate.confirmed_price = data.get('confirmed_price')
-                job_candidate.job.status = jobcandidate_status
+                job_candidate.confirmed_price=data.get('confirmed_price')
+                job_candidate.job.status=jobcandidate_status
 
                 try:
-                    review = Review()
-                    review.review_level = data.get('review_level')
-                    review.review_content = data.get('review_content')
-                    review.job_candidate = job_candidate
+                    review=Review()
+                    review.review_level=data.get('review_level')
+                    review.review_content=data.get('review_content')
+                    review.job_candidate=job_candidate
                     review.save()
                 except Exception as e:
-                    review = Review.objects.get(job_candidate=job_candidate)
-                    review.review_level = data.get('review_level')
-                    review.review_content = data.get('review_content')
+                    review=Review.objects.get(job_candidate = job_candidate)
+                    review.review_level=data.get('review_level')
+                    review.review_content=data.get('review_content')
                     review.save()
 
-                customer_action = "Xác nhận"
+                customer_action="Xác nhận"
 
             elif jobcandidate_status == "cancel":
-                customer_action = "Từ chối"
+                customer_action="Từ chối"
             else:
-                job_candidate.job.status = "published"
+                job_candidate.job.status="published"
 
             job_candidate.job.save()
             job_candidate.save()
-            jobcandidate_tracking.action_title = customer_action
-            jobcandidate_tracking.action_content = "%s ứng tuyển" % customer_action
-            jobcandidate_tracking.job_candidate = job_candidate
+            jobcandidate_tracking.action_title=customer_action
+            jobcandidate_tracking.action_content="%s ứng tuyển" % customer_action
+            jobcandidate_tracking.job_candidate=job_candidate
             jobcandidate_tracking.save()
 
-            user_token = job_candidate.candidate.notification_token
-            notification_title = "Thông tin ứng tuyển"
-            notificatin_body = "Khách hàng đã %s bạn cho công việc %s" % (
+            user_token=job_candidate.candidate.notification_token
+            notification_title="Thông tin ứng tuyển"
+            notificatin_body="Khách hàng đã %s bạn cho công việc %s" % (
                 customer_action, job_candidate.job.name)
-            notificatin_image = f"https://firebasestorage.googleapis.com/v0/b/vieclam24h-3d4e1.appspot.com/o/FCMImages%2Fiado_1284-30311.jpg?alt=media&token=7fb73580-8e91-4627-9890-72a5d4708854"
-            notification = Notification(
+            notificatin_image=f"https://firebasestorage.googleapis.com/v0/b/vieclam24h-3d4e1.appspot.com/o/FCMImages%2Fiado_1284-30311.jpg?alt=media&token=7fb73580-8e91-4627-9890-72a5d4708854"
+            notification=Notification(
                 notification_title, notificatin_body, notificatin_image)
-            send_res = notification.send_to_one(user_token)
+            send_res=notification.send_to_one(user_token)
             if send_res == True:
-                notification_model = NotificationModel()
-                notification_model.title = notification_title
-                notification_model.content = notificatin_body
-                notification_model.user_id = job_candidate.candidate.pk
-                notification_model.job_id = job_candidate.job.pk
+                notification_model=NotificationModel()
+                notification_model.title=notification_title
+                notification_model.content=notificatin_body
+                notification_model.user_id=job_candidate.candidate.pk
+                notification_model.job_id=job_candidate.job.pk
                 notification_model.save()
 
-            serializer = JobCandidateSerializer(job_candidate).data
+            serializer=JobCandidateSerializer(job_candidate).data
 
             return Response({
                 "status": True,
@@ -948,7 +949,7 @@ def modify_job_candidate(request, user_id):
             })
 
     except Exception as e:
-        message = f'Error: {e}'
+        message=f'Error: {e}'
         print(message)
         log.log_message(message)
         return Response({
@@ -964,18 +965,18 @@ def modify_job_candidate(request, user_id):
 def search_candidate_api(request, user_id):
 
     try:
-        page = request.query_params.get('page')
-        page_limit = request.query_params.get('limit')
+        page=request.query_params.get('page')
+        page_limit=request.query_params.get('limit')
 
-        paginator = PaginationBaseCustom()
-        paginator.page_size = 10
+        paginator=PaginationBaseCustom()
+        paginator.page_size=10
 
         if page_limit is not None:
-            paginator.page_size = int(page_limit)
+            paginator.page_size=int(page_limit)
 
-        query = request.query_params.get('query')
+        query=request.query_params.get('query')
 
-        search_vector = SearchVector(
+        search_vector=SearchVector(
             'candidate_user__descriptions', 'candidate_user__fields__name')
         search_query = SearchQuery(query)
 

@@ -64,11 +64,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     username = serializers.CharField()
     password = serializers.CharField()
-    candidate_info = serializers.SerializerMethodField('get_candidate_info')
+    # candidate_info = serializers.SerializerMethodField('get_candidate_info')
 
     class Meta:
         model = User
-        depth = 2
+        depth = 1
         fields = '__all__'
 
     def update(self, instance, validated_data):
