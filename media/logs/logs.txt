@@ -93,3 +93,167 @@ DETAIL:  Key (user_id)=(34) is not present in table "service_serviceuser".
  2021-04-05 17:19:46.177840 : Error: ['“true” value must be either True or False.'] at 1261 - update_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
 
  2021-04-05 17:23:04.118988 : Error: ['“Falses” value must be either True or False.'] at 1261 - update_user_notification_configuration - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-06 11:04:47.134249 : __init__() missing 2 required positional arguments: 'title' and 'body' at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-06 11:05:51.449106 : 'CandidateUser' object has no attribute 'id' at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 08:51:58.594182 : Error: Please give user_role at 1215 - get_jobcandidate_detail - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 09:28:53.005940 : Requested entity was not found. at 44 - send_to_one - /Users/truongthuan/Develop/python/service247/service/firebase_notification.py
+
+ 2021-04-07 09:30:58.596598 : Requested entity was not found. at 44 - send_to_one - /Users/truongthuan/Develop/python/service247/service/firebase_notification.py
+
+ 2021-04-07 09:40:04.148302 : Error: 'RelatedManager' object has no attribute 'orderBy' at 1215 - get_jobcandidate_detail_trackking - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 09:40:18.483900 : Error: 'RelatedManager' object has no attribute 'orderBy' at 1215 - get_jobcandidate_detail_trackking - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 09:41:09.351795 : Error: 'RelatedManager' object has no attribute 'orderBy' at 1215 - get_jobcandidate_detail_trackking - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 09:47:32.902395 : Error: 'RelatedManager' object has no attribute 'orderBy' at 1215 - get_jobcandidate_detail_trackking - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 09:56:38.359343 : Error: 'RelatedManager' object has no attribute 'orderBy' at 1215 - get_jobcandidate_detail_trackking - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 10:04:03.117402 : Requested entity was not found. at 44 - send_to_one - /Users/truongthuan/Develop/python/service247/service/firebase_notification.py
+
+ 2021-04-07 10:18:02.040116 : Exactly one of token, topic or condition must be specified. at 44 - send_to_one - /Users/truongthuan/Develop/python/service247/service/firebase_notification.py
+
+ 2021-04-07 10:19:52.401506 : Exactly one of token, topic or condition must be specified. at 44 - send_to_one - /Users/truongthuan/Develop/python/service247/service/firebase_notification.py
+
+ 2021-04-07 11:38:56.663127 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 11:40:07.985977 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 11:40:44.706309 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 11:42:17.355868 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 11:43:00.924310 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 11:44:06.006740 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 12:59:25.550678 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 12:59:50.177062 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:00:28.407197 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:02:41.151131 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:05:25.006205 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:09:39.148237 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:10:00.038500 : Error: 'ListSerializer' object has no attribute 'get_candidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:12:18.428562 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:12:56.082472 : Error: 'ServiceUser' object has no attribute 'first' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:13:18.327843 : Error: 'ServiceUser' object has no attribute 'get' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:22:27.234176 : Error: 'JobCandidate' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:22:58.254308 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:27:54.193239 : Error: 'ServiceUser' object is not iterable at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:28:49.725561 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:29:06.340677 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:29:58.544412 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:32:32.055891 : Error: Cannot resolve keyword 'job' into field. Choices are: author, author_id, created_at, descriptions, field, field_id, id, immidiately, job_notification, jobcandidate, jobs, location, name, slug, status, suggestion_price, updated_at, worktime at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:32:58.846662 : Error: Cannot resolve keyword 'job' into field. Choices are: author, author_id, created_at, descriptions, field, field_id, id, immidiately, job_notification, jobcandidate, jobs, location, name, slug, status, suggestion_price, updated_at, worktime at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:33:00.334158 : Error: Cannot resolve keyword 'job' into field. Choices are: author, author_id, created_at, descriptions, field, field_id, id, immidiately, job_notification, jobcandidate, jobs, location, name, slug, status, suggestion_price, updated_at, worktime at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:34:04.996261 : Error: maximum recursion depth exceeded in comparison at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:35:07.687421 : Error: Got AttributeError when attempting to get a value for field `name` on serializer `JobSerializer`.
+The serializer field might be named incorrectly and not match any attribute or key on the `JobCandidate` instance.
+Original exception text was: 'JobCandidate' object has no attribute 'name'. at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:35:43.594050 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:42:28.263341 : Error: 'ServiceUser' object is not iterable at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:42:30.333849 : Error: 'ServiceUser' object is not iterable at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:44:20.627151 : Error: 'ServiceUser' object has no attribute 'count' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:45:00.975210 : Error: 'ServiceUser' object has no attribute 'count' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:45:21.057063 : Error: Manager isn't accessible via ServiceUser instances at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:47:52.674022 : Error: name 'job_candidate_id' is not defined at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:48:12.355467 : Error: name 'candidate_id' is not defined at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:48:32.145379 : Error: Cannot resolve keyword 'candidate_id' into field. Choices are: candidate_user, category, descriptions, fields, is_candidate, location, status, user, user_id at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:49:02.441845 : Error: Cannot resolve keyword 'candidate_number' into field. Choices are: candidate_user, category, descriptions, fields, is_candidate, location, status, user, user_id at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:49:49.104200 : Error: Cannot resolve keyword 'candidate_number' into field. Choices are: candidate_user, category, descriptions, fields, is_candidate, location, status, user, user_id at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:51:47.458174 : Error: get expected at least 1 argument, got 0 at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:51:49.050496 : Error: get expected at least 1 argument, got 0 at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:56:55.022697 : Error: 'ServiceUser' object has no attribute 'filter' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:57:35.739217 : Error: 'JobCandidate' object has no attribute 'candidate_user' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:59:21.388198 : Error: Got AttributeError when attempting to get a value for field `user` on serializer `CandidateUserSerializer`.
+The serializer field might be named incorrectly and not match any attribute or key on the `ServiceUser` instance.
+Original exception text was: 'ServiceUser' object has no attribute 'user'. at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 13:59:46.689906 : Error: Got AttributeError when attempting to get a value for field `user` on serializer `CandidateUserSerializer`.
+The serializer field might be named incorrectly and not match any attribute or key on the `ServiceUser` instance.
+Original exception text was: 'ServiceUser' object has no attribute 'user'. at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:02:27.175842 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:03:57.570605 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:07:02.412480 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:07:53.335638 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:17:43.160523 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:19:07.873676 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:24:35.873141 : Error: 'RelatedManager' object has no attribute 'candidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:25:46.051611 : Error: 'Job' object has no attribute 'jobcandidate__candidate_id' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:26:19.696748 : Error: CandidateUser() got an unexpected keyword argument 'many' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:26:34.383036 : Error: 'CandidateUser' object has no attribute 'data' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:26:44.672869 : Error: Got AttributeError when attempting to get a value for field `user` on serializer `CandidateUserSerializer`.
+The serializer field might be named incorrectly and not match any attribute or key on the `JobCandidate` instance.
+Original exception text was: 'JobCandidate' object has no attribute 'user'. at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:27:21.835785 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:29:58.895355 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:33:42.856517 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:34:11.246851 : Error: 'Job' object has no attribute 'reviews' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:34:42.140768 : Error: type object 'JobCandidateSerializer' has no attribute 'objects' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:35:18.103418 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:36:24.823500 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:37:57.742533 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:38:09.587594 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-07 14:40:22.606767 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
