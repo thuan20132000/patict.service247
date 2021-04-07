@@ -171,7 +171,7 @@ class JobCandidateSerializer(serializers.ModelSerializer):
         return ServiceUserSerializer(obj.candidate).data
 
     def get_jobcandidate_tracking(self,obj):
-        return JobCandidateTrackingSerializer(obj.jobcandidate_tracking.orderBy('created_at').all(),many=True).data
+        return JobCandidateTrackingSerializer(obj.jobcandidate_tracking.order_by('-created_at').all(),many=True).data
 
 
 class JobPaginationCustom(PageNumberPagination):
