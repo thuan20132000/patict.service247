@@ -185,7 +185,7 @@ class Review(models.Model):
         related_name='reviews',
         null=True
     )
-
+ 
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICE, default='published')
     created_at = models.DateTimeField(auto_now_add=True)

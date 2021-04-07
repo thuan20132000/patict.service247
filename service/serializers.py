@@ -156,8 +156,8 @@ class JobCandidateSerializer(serializers.ModelSerializer):
 
     confirmed_price = serializers.DecimalField(
         max_digits=18, decimal_places=2, required=False)
-    reviews = serializers.SerializerMethodField('get_review')
-    candidate = serializers.SerializerMethodField('get_candidate')
+    # reviews = serializers.SerializerMethodField('get_review')
+    # candidate = serializers.SerializerMethodField('get_candidate')
 
     class Meta:
         model = JobCandidate

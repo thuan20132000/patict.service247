@@ -488,8 +488,6 @@ def job_post_api(request):
             notification_title = "Công việc vừa đăng phù hợp với bạn tesy"
             notification_body = job.descriptions
 
-            print('candidate list: ',notification_candidate_list)
-
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 for candidate in notification_candidate_list:
                     candidate_notification = NotificationModel()
@@ -819,7 +817,10 @@ def user_jobs_api(request, user_id):
 
         return Response(
             paginator.get_paginated_response(
-                serializer.data, message="Get job created by user successfully", code=ErrorCode.GET_SUCCESS)
+                serializer.data,
+                message="Get job created by user successfully",
+                code=ErrorCode.GET_SUCCESS
+            )
         )
 
     except Exception as e:
@@ -835,7 +836,7 @@ def user_jobs_api(request, user_id):
         })
 
 
-@api_view(['GET'])
+@ api_view(['GET'])
 def get_user_detail(request, user_id):
     try:
         user = ServiceUser.objects.get(id=user_id)
@@ -861,7 +862,7 @@ def get_user_detail(request, user_id):
 
 
 # User select or cancel candidate by change status
-@api_view(['PUT'])
+@ api_view(['PUT'])
 def modify_job_candidate(request, user_id):
     try:
 
@@ -959,7 +960,7 @@ def modify_job_candidate(request, user_id):
 
 
 # User search candidate
-@api_view(['GET'])
+@ api_view(['GET'])
 def search_candidate_api(request, user_id):
 
     try:
