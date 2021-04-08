@@ -26,8 +26,8 @@ from .api import (
     search_candidate_api,
     get_candidate_images,
     get_user_detail,
-    get_candidate_notifications,
-    update_candidate_notification,
+    get_user_notifications,
+    update_user_notification,
     update_user_notification_token,
     get_jobcandidate_detail_trackking,
     get_user_notification_configuration,
@@ -75,10 +75,11 @@ urlpatterns = [
     path('api/v1/candidate/<int:user_id>/jobs',get_candidate_job_api,name='candidate_jobs_api'),
     path('api/v1/candidate/<int:user_id>/reviews',get_candidate_review_api,name='candidate_reviews_api'),
 
+    # notification
+    path('api/v1/user/<int:user_id>/notifications',get_user_notifications,name="get_user_notifications"),
+    path('api/v1/user/<int:user_id>/notification/<int:notification_id>',update_user_notification,name="update_user_notification"),
     # candidate
     path('api/v1/candidate/<int:user_id>/images',get_candidate_images,name="get_candidate_image"),
-    path('api/v1/candidate/<int:user_id>/notifications',get_candidate_notifications,name="get_candidate_notifications"),
-    path('api/v1/candidate/<int:user_id>/notification/<int:notification_id>',update_candidate_notification,name="update_candidate_notification"),
     path('api/v1/candidate/<int:user_id>/jobcandidate/<int:jobcandidate_id>/detail',get_jobcandidate_detail_trackking,name="get_jobcandidate_detail"),
     
 
