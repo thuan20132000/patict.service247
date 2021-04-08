@@ -935,6 +935,7 @@ def modify_job_candidate(request, user_id):
                 notification_model.content = notificatin_body
                 notification_model.user_id = job_candidate.candidate.pk
                 notification_model.job_id = job_candidate.job.pk
+                notification_model.jobcandidate_id = jobcandidate_id
                 notification_model.save()
 
             serializer = JobCandidateSerializer(job_candidate).data
@@ -1125,7 +1126,7 @@ def get_candidate_images(request, user_id):
 
 
 @api_view(['GET'])
-def get_candidate_notifications(request, user_id):
+def get_user_notifications(request, user_id):
     try:
 
         page = request.query_params.get('page')
@@ -1158,7 +1159,7 @@ def get_candidate_notifications(request, user_id):
 
 
 @api_view(['PUT'])
-def update_candidate_notification(request, user_id, notification_id):
+def update_user_notification(request, user_id, notification_id):
     try:
 
         candidate_notification = NotificationModel.objects.get(
