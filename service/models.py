@@ -4,8 +4,7 @@ from django.urls import reverse
 # Create your models here.
 # Preparing to transfer from User to ServiceUser
 from local_env.config import SERVER_PATH
-from uuid import uuid1
-
+import uuid
 class ServiceUser(AbstractBaseUser):
 
     STATUS_CHOICE = (
@@ -283,6 +282,15 @@ class Notification(models.Model):
         null=True,
         related_name='job_notification'
     )
+
+    jobcandidate = models.ForeignKey(
+        JobCandidate,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='jobcandidate_notification'
+    )
+    userconnection_id = models.UUIDField(null=True,editable=False)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
