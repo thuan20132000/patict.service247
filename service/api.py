@@ -935,6 +935,7 @@ def modify_job_candidate(request, user_id):
                 notification_model.content = notificatin_body
                 notification_model.user_id = job_candidate.candidate.pk
                 notification_model.job_id = job_candidate.job.pk
+                notification_model.jobcandidate_id = jobcandidate_id
                 notification_model.save()
 
             serializer = JobCandidateSerializer(job_candidate).data
