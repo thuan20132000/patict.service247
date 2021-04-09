@@ -929,14 +929,14 @@ def modify_job_candidate(request, user_id):
             notification = Notification(
                 notification_title, notificatin_body, notificatin_image)
             send_res = notification.send_to_one(user_token)
-            if send_res == True:
-                notification_model = NotificationModel()
-                notification_model.title = notification_title
-                notification_model.content = notificatin_body
-                notification_model.user_id = job_candidate.candidate.pk
-                notification_model.job_id = job_candidate.job.pk
-                notification_model.jobcandidate_id = jobcandidate_id
-                notification_model.save()
+            # if send_res == True:
+            notification_model = NotificationModel()
+            notification_model.title = notification_title
+            notification_model.content = notificatin_body
+            notification_model.user_id = job_candidate.candidate.pk
+            notification_model.job_id = job_candidate.job.pk
+            notification_model.jobcandidate_id = jobcandidate_id
+            notification_model.save()
 
             serializer = JobCandidateSerializer(job_candidate).data
 
@@ -1255,7 +1255,7 @@ def get_jobcandidate_detail_trackking(request, user_id, jobcandidate_id):
             "code": ErrorCode.UNDEFINED
         })
 
-
+# Get or Create new UserNotificationConfigurations
 @api_view(['GET'])
 def get_user_notification_configuration(request, user_id):
     try:

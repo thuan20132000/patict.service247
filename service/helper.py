@@ -6,7 +6,7 @@ import inspect
 import logging
 import concurrent
 from service.models import Notification as NotificationModel,ServiceUser
-
+from django.contrib.admin import SimpleListFilter
 
 """
     Author:thuantruong
@@ -173,3 +173,52 @@ class ValidationInput:
             if x is None or len(x) < 10:
                 return False
         return True
+
+
+
+
+
+class JSONFieldFilter(SimpleListFilter):
+    """
+    """
+
+    def __init__(self, *args, **kwargs):
+
+        super(JSONFieldFilter, self).__init__(*args, **kwargs)
+
+        assert hasattr(self, 'title'), (
+            'Class {} missing "title" attribute'.format(self.__class__.__name__)
+        )
+        assert hasattr(self, 'parameter_name'), (
+            'Class {} missing "parameter_name" attribute'.format(self.__class__.__name__)
+        )
+        assert hasattr(self, 'json_field_name'), (
+            'Class {} missing "json_field_name" attribute'.format(self.__class__.__name__)
+        )
+        assert hasattr(self, 'json_field_property_name'), (
+            'Class {} missing "json_field_property_name" attribute'.format(self.__class__.__name__)
+        )
+
+    def lookups(self, request, model_admin):
+        """
+        # Improvemnt needed: if the size of jsonfield is large and there are lakhs of row
+        """
+        if '__' in self.json_field_property_name:  # NOTE: this will cover only one nested level
+            keys = self.json_field_property_name.split('__')
+            field_value_set = set(
+                data[keys[0]][keys[1]] for data in model_admin.model.objects.values_list(self.json_field_name, flat=True)
+            )
+        else:
+            field_value_set = set(
+                data[self.json_field_property_name] for data in model_admin.model.objects.values_list(self.json_field_name, flat=True)
+            )
+        return [(v, v) for v in field_value_set]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            json_field_query = {"{}__{}".format(self.json_field_name, self.json_field_property_name): self.value()}
+            return queryset.filter(**json_field_query)
+        else:
+            return queryset
+
+

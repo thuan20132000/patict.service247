@@ -123,9 +123,13 @@ class Job(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
     def __str__(self,):
         return self.name
 
+
+    def get_absolute_url(self,):
+        return '/admin/service/job/%i' % self.pk
 
 class JobCandidate(models.Model):
 
@@ -294,6 +298,9 @@ class Notification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def get_user_url(self,):
+        return '/admin/service/serviceuser/%i' % self.user.pk
+
 
 class JobCandidateTracking(models.Model):
     STATUS_CHOICE = (
@@ -315,7 +322,7 @@ class JobCandidateTracking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
+        
 class UserNotificationConfiguration(models.Model):
 
     post_job_notification = models.BooleanField(default=False)
