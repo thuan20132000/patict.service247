@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'rest_auth.registration',
     'django_seed',
+    'django_json_widget',
 
 
     # local
