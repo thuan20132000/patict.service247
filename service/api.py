@@ -18,7 +18,9 @@ from .models import (
     ServiceUser,
     Notification as NotificationModel,
     JobCandidateTracking,
-    UserNotificationConfiguration
+    UserNotificationConfiguration,
+    CandidateService,
+    ServiceBooking
 )
 from django.utils.text import slugify
 from .serializers import (
@@ -36,7 +38,9 @@ from .serializers import (
     ServiceUserSerializer,
     ServiceUserSigninSerializer,
     NotificationSerializer,
-    UserNotificationConfigurationSerializer
+    UserNotificationConfigurationSerializer,
+    CandidateServiceSerializer,
+    ServiceBookingSerializer
 )
 
 import json
@@ -482,7 +486,8 @@ def job_post_api(request):
                 title=job.name, body=job.descriptions, image=notification_image_url,
             )
             # notification.send_topic_notification('jobpost')
-            notification.send_topic_notification_with_data('jobpost',job_id=job.pk)
+            notification.send_topic_notification_with_data(
+                'jobpost', job_id=job.pk)
 
             notification_candidate_list = CandidateUser.objects.filter(
                 user__user_notification_config__post_job_notification=True).all()
@@ -757,14 +762,12 @@ def apply_job_position(request, user_id):
             jobcandidate.save()
 
             notification_model = NotificationModel()
-            notification_model.title = "Ứng tuyển công việc" 
-            notification_model.content = "Ứng tuyển vào ông việc với giá %s "%(jobcandidate.expected_price)
+            notification_model.title = "Ứng tuyển công việc"
+            notification_model.content = "Ứng tuyển vào ông việc với giá %s " % (
+                jobcandidate.expected_price)
             notification_model.user_id = jobcandidate.candidate_id
             notification_model.job_id = job_candidate.job_id
             notification_model.save()
-
-
-            
 
             return Response({
                 "status": True,
@@ -1258,6 +1261,8 @@ def get_jobcandidate_detail_trackking(request, user_id, jobcandidate_id):
         })
 
 # Get or Create new UserNotificationConfigurations
+
+
 @api_view(['GET'])
 def get_user_notification_configuration(request, user_id):
     try:
@@ -1320,6 +1325,161 @@ def update_user_notification_configuration(request, user_id):
             "data": serializer,
             "code": ErrorCode.GET_SUCCESS
         })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['GET'])
+def get_candidate_services(request, user_id):
+    try:
+
+        candidate_services = CandidateService.objects.filter(
+            status='published', candidate_id=user_id).all()
+        serializer = CandidateServiceSerializer(
+            candidate_services, many=True).data
+
+        return Response({
+            "status": True,
+            "message": "get candidate services success.",
+            "data": serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['POST'])
+def create_candidate_service(request, user_id):
+    try:
+
+        data = request.data
+        name = data.get('name')
+        price = data.get('price')
+        field_id = data.get('field_id')
+        candidate_service = CandidateService(candidate_id=user_id)
+        serializer = CandidateServiceSerializer(candidate_service, data=data)
+
+        if serializer.is_valid():
+            candidate_service.name = name
+            candidate_service.price = price
+            candidate_service.field_id = field_id
+            candidate_service.save()
+            print('true')
+
+        else:
+            print('false')
+
+            return Response({
+                "status": False,
+                "message": serializer.errors,
+                # "data": serializer,
+                "code": ErrorCode.CANDIDATE_EXIST
+            })
+
+        return Response({
+            "status": True,
+            "message": "create candidate services success.",
+            # "data": serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['DELETE'])
+def delete_candidate_service(request, user_id, service_id):
+
+    try:
+        candidate_service = CandidateService.objects.filter(
+            pk=service_id, candidate_id=user_id).first()
+        candidate_service.delete()
+
+        return Response({
+            "status": True,
+            "message": "Delete candidate service successfully",
+            # "data": serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+# User book service from candidate
+
+
+@api_view(['POST'])
+def book_services(request, user_id):
+    try:
+
+        data = request.data
+
+        worktime = data.get('worktime')
+        location = data.get('location')
+        payment = data.get('payment')
+        total_price = data.get('total_price')
+        candidate_id = data.get('candidate_id')
+        services = data.get('services')
+
+        service_booking = ServiceBooking()
+        service_booking.candidate = CandidateUser.objects.get(pk=245)
+        service_booking.total_price = total_price
+        service_booking.candidate_id = candidate_id
+        service_booking.user_id = user_id
+        service_booking.save()
+
+        print(service_booking.__dict__)
+
+    
+        # serializer = ServiceBookingSerializer(service_booking, data=data)
+
+        # if serializer.is_valid():
+        #     print('valid')
+        # else:
+        #     print('invalid')
+        #     return Response({
+        #     "status": True,
+        #     "message": serializer.errors,
+        #     # "data": serializer,
+        #     "code": ErrorCode.GET_SUCCESS
+        # })
+
+        return Response({
+            "status": True,
+            "message": "Book service successfully",
+            # "data": serializer,
+            "code": ErrorCode.GET_SUCCESS
+        })
+
 
     except Exception as e:
         message = f'Error: {e}'

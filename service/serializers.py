@@ -12,7 +12,9 @@ from .models import (
     ServiceUser,
     Notification as NotificationModel,
     JobCandidateTracking,
-    UserNotificationConfiguration
+    UserNotificationConfiguration,
+    CandidateService,
+    ServiceBooking
     
 )
 from django.conf import settings
@@ -291,3 +293,19 @@ class UserNotificationConfigurationSerializer(serializers.ModelSerializer):
         model = UserNotificationConfiguration
         fields = '__all__'
         
+
+
+class CandidateServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CandidateService
+        fields = ['id','name','price','status','field']
+        depth = 1
+        
+
+
+class ServiceBookingSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = ServiceBooking
+        fields = '__all__'
