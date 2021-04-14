@@ -41,6 +41,19 @@ class Notification(NotificationConfiguration):
         # Response is a message ID string.
         print('Successfully sent message:', response)
 
+    def send_topic_notification_with_data(self,topic,job_id):
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=self.title, body=self.body, image=self.image),
+            topic=topic,
+            data={
+                'job_id': '%s'%job_id
+            }
+        )
+        response = messaging.send(message)
+        # Response is a message ID string.
+        print('Successfully sent message:', response)
+
     def send_to_one(self, device_token):
 
 

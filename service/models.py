@@ -5,6 +5,8 @@ from django.urls import reverse
 # Preparing to transfer from User to ServiceUser
 from local_env.config import SERVER_PATH
 import uuid
+
+
 class ServiceUser(AbstractBaseUser):
 
     STATUS_CHOICE = (
@@ -123,13 +125,12 @@ class Job(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-
     def __str__(self,):
         return self.name
 
-
     def get_absolute_url(self,):
         return '/admin/service/job/%i' % self.pk
+
 
 class JobCandidate(models.Model):
 
@@ -188,7 +189,7 @@ class Review(models.Model):
         related_name='reviews',
         null=True
     )
- 
+
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICE, default='published')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -293,7 +294,7 @@ class Notification(models.Model):
         null=True,
         related_name='jobcandidate_notification'
     )
-    userconnection_id = models.UUIDField(null=True,editable=False)
+    userconnection_id = models.UUIDField(null=True, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -310,19 +311,19 @@ class JobCandidateTracking(models.Model):
     status = models.CharField(
         max_length=10, choices=STATUS_CHOICE, default='published')
 
-    action_title = models.CharField(max_length=150,null=True)
-    action_content = models.CharField(max_length=255,null=True)
-    
+    action_title = models.CharField(max_length=150, null=True)
+    action_content = models.CharField(max_length=255, null=True)
+
     job_candidate = models.ForeignKey(
         JobCandidate,
         on_delete=models.CASCADE,
-        related_name='jobcandidate_tracking'        
+        related_name='jobcandidate_tracking'
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-        
+
 class UserNotificationConfiguration(models.Model):
 
     post_job_notification = models.BooleanField(default=False)
@@ -336,3 +337,68 @@ class UserNotificationConfiguration(models.Model):
         primary_key=True,
         related_name="user_notification_config"
     )
+
+
+class CandidateService(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT'),
+        ('pending', 'PENDING'),
+    )
+    name = models.CharField(max_length=250)
+    price = models.DecimalField(max_digits=18, decimal_places=2, null=True)
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    field = models.ForeignKey(
+        Field,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="candidate_service_field"
+    )
+
+    candidate = models.ForeignKey(
+        CandidateUser,
+        on_delete=models.CASCADE,
+        related_name="candidate_service_candidate"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class ServiceBooking(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT'),
+        ('pending', 'PENDING'),
+        ('confirmed','CONFIRMED')
+    )
+
+    PAYMENT_METHODS = (
+        ('cash', 'CASH'),
+    )
+
+    worktime = models.DateTimeField(null=True, blank=True)
+    location = models.JSONField(blank=True, null=True)
+    services = models.ManyToManyField(CandidateService)
+    candidate = models.ForeignKey(
+        CandidateUser,
+        on_delete=models.CASCADE,
+        related_name="service_booking_candidate"
+    )
+    user = models.ForeignKey(
+        ServiceUser,
+        on_delete=models.CASCADE,
+        related_name="service_booking_user"
+    )
+    payment = models.CharField(
+        max_length=60, choices=PAYMENT_METHODS, default='cash')
+
+    total_price = models.DecimalField(max_digits=18,decimal_places=2)
+    
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

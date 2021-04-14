@@ -32,6 +32,11 @@ from .api import (
     get_jobcandidate_detail_trackking,
     get_user_notification_configuration,
     update_user_notification_configuration,
+    get_candidate_services,
+    create_candidate_service,
+    delete_candidate_service,
+    book_services
+
     
 )
 
@@ -71,6 +76,8 @@ urlpatterns = [
     path('api/v1/user/<int:user_id>/notification-configuration',get_user_notification_configuration,name='get_user_notification_configuration'),
     path('api/v1/user/<int:user_id>/notification-configuration/update',update_user_notification_configuration,name='update_user_notification_configuration'),
 
+    path('api/v1/user/<int:user_id>/services/book',book_services,name="book_services"),
+
     # Get all jobs that candidates has been applied by job status
     path('api/v1/candidate/<int:user_id>/jobs',get_candidate_job_api,name='candidate_jobs_api'),
     path('api/v1/candidate/<int:user_id>/reviews',get_candidate_review_api,name='candidate_reviews_api'),
@@ -81,7 +88,10 @@ urlpatterns = [
     # candidate
     path('api/v1/candidate/<int:user_id>/images',get_candidate_images,name="get_candidate_image"),
     path('api/v1/candidate/<int:user_id>/jobcandidate/<int:jobcandidate_id>/detail',get_jobcandidate_detail_trackking,name="get_jobcandidate_detail"),
-    
+    path('api/v1/candidate/<int:user_id>/services',get_candidate_services,name="get_candidate_services"),
+    path('api/v1/candidate/<int:user_id>/service',create_candidate_service,name="create_candidate_service"),
+    path('api/v1/candidate/<int:user_id>/service/<int:service_id>',delete_candidate_service,name='delete_candidate_service'),
+
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 

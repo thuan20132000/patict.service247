@@ -257,3 +257,33 @@ Original exception text was: 'JobCandidate' object has no attribute 'user'. at 7
  2021-04-07 14:38:09.587594 : Error: 'Job' object has no attribute 'usercandidate' at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
 
  2021-04-07 14:40:22.606767 : Error: maximum recursion depth exceeded while calling a Python object at 788 - user_jobs_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-08 13:37:12.417884 : Exactly one of token, topic or condition must be specified. at 44 - send_to_one - /Users/truongthuan/Develop/python/service247/service/firebase_notification.py
+
+ 2021-04-09 16:42:37.509406 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:44:54.754745 : Message.data must be a dictionary. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:47:49.074474 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:48:43.546745 : send_topic_notification_with_data() takes 2 positional arguments but 3 were given at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:49:06.327793 : Message.data must be a dictionary. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:51:03.778591 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:51:49.699500 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:54:13.790198 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:54:46.207134 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:55:00.577057 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:55:28.928303 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:55:48.534126 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:57:53.786491 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py
+
+ 2021-04-09 16:58:11.785376 : Message.data must not contain non-string values. at 441 - job_post_api - /Users/truongthuan/Develop/python/service247/service/api.py

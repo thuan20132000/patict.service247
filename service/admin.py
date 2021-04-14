@@ -9,7 +9,8 @@ from .models import (
     CandidateUser,
     ServiceUser,
     Notification,
-    UserNotificationConfiguration
+    UserNotificationConfiguration,
+    CandidateService
 )
 
 from django.contrib.contenttypes.admin import GenericTabularInline, InlineModelAdmin
@@ -194,3 +195,8 @@ class AdminNotification(admin.ModelAdmin):
 class AdminUserNotificationConfiguration(admin.ModelAdmin):
     list_display = ('post_job_notification', 'apply_job_notification',
                     'user_job_notification', 'user_message_notification', 'user')
+
+@admin.register(CandidateService)
+class AdminCandidateService(admin.ModelAdmin):
+    list_display = ['name','price','field','candidate','status']
+    
