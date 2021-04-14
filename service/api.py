@@ -479,13 +479,15 @@ def job_post_api(request):
                 notification_image_url = images[0].get_absolute_url()
             # image_url = "https://iso.500px.com/wp-content/uploads/2016/11/stock-photo-159533631-1500x1000.jpg"
             notification = Notification(
-                title=job.name, body=job.descriptions, image=notification_image_url)
-            notification.send_topic_notification('jobpost')
+                title=job.name, body=job.descriptions, image=notification_image_url,
+            )
+            # notification.send_topic_notification('jobpost')
+            notification.send_topic_notification_with_data('jobpost',job_id=job.pk)
 
             notification_candidate_list = CandidateUser.objects.filter(
                 user__user_notification_config__post_job_notification=True).all()
 
-            notification_title = "Công việc vừa đăng phù hợp với bạn tesy"
+            notification_title = job.name
             notification_body = job.descriptions
 
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
