@@ -1391,11 +1391,12 @@ def create_candidate_service(request, user_id):
                 # "data": serializer,
                 "code": ErrorCode.CANDIDATE_EXIST
             })
+        serializer_data = serializer.data
 
         return Response({
             "status": True,
             "message": "create candidate services success.",
-            # "data": serializer,
+            "data": serializer_data,
             "code": ErrorCode.GET_SUCCESS
         })
     except Exception as e:
