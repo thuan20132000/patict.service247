@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.postgres.search import SearchVector, SearchRank, SearchQuery
-
+from django.db import transaction
 from .models import (
     Category,
     Job,
@@ -1452,35 +1452,78 @@ def book_services(request, user_id):
         services = data.get('services')
 
         service_booking = ServiceBooking()
-        service_booking.candidate = CandidateUser.objects.get(pk=245)
-        service_booking.total_price = total_price
-        service_booking.candidate_id = candidate_id
-        service_booking.user_id = user_id
-        service_booking.save()
 
-        print(service_booking.__dict__)
-
-    
-        # serializer = ServiceBookingSerializer(service_booking, data=data)
-
-        # if serializer.is_valid():
-        #     print('valid')
-        # else:
-        #     print('invalid')
-        #     return Response({
-        #     "status": True,
-        #     "message": serializer.errors,
-        #     # "data": serializer,
-        #     "code": ErrorCode.GET_SUCCESS
-        # })
-
-        return Response({
-            "status": True,
-            "message": "Book service successfully",
-            # "data": serializer,
-            "code": ErrorCode.GET_SUCCESS
+        serializer = ServiceBookingSerializer(service_booking, data={
+            'candidate': candidate_id,
+            'user': user_id,
+            'total_price': total_price
         })
 
+        if serializer.is_valid():
+            # print('valid')
+            # serializer.save()
+            # print('test: ',services)
+
+            with transaction.atomic():
+                service_booking.candidate_id = candidate_id
+                service_booking.user_id = user_id
+                service_booking.total_price = total_price
+                service_booking.save()
+                service_booking.services.set(services)
+
+                job_trackking = JobCandidateTracking()
+                job_trackking.action_title = " Yêu cầu dịch vụ "
+                job_trackking.action_content = "{0} đã gửi yêu cầu dịch vụ ".format(
+                    service_booking.user.username)
+                job_trackking.service_booking = service_booking
+                job_trackking.save()
+
+            return Response({
+                "status": True,
+                "message": "Book service successfully",
+                "data": serializer.data,
+                "code": ErrorCode.GET_SUCCESS
+            })
+
+        else:
+            # print('invalid')
+            return Response({
+                "status": False,
+                "message": serializer.errors,
+                # "data": serializer,
+                "code": ErrorCode.GET_SUCCESS
+            })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+@api_view(['GET'])
+def get_candidate_orders(request, user_id,):
+
+    try:
+        candidate_order = ServiceBooking.objects.filter(
+            candidate_id=user_id).order_by('-updated_at').all()
+        paginator = JobPaginationCustom()
+        paginator.page_size = 10
+
+        context = paginator.paginate_queryset(candidate_order, request)
+        serializer = ServiceBookingSerializer(context, many=True)
+
+        return Response(
+            paginator.get_paginated_response(
+                serializer.data,
+                message="Get booked job  successfully",
+                code=ErrorCode.GET_SUCCESS
+            )
+        )
 
     except Exception as e:
         message = f'Error: {e}'

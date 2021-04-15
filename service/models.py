@@ -303,27 +303,6 @@ class Notification(models.Model):
         return '/admin/service/serviceuser/%i' % self.user.pk
 
 
-class JobCandidateTracking(models.Model):
-    STATUS_CHOICE = (
-        ('published', 'PUBLISHED'),
-        ('draft', 'DRAFT')
-    )
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICE, default='published')
-
-    action_title = models.CharField(max_length=150, null=True)
-    action_content = models.CharField(max_length=255, null=True)
-
-    job_candidate = models.ForeignKey(
-        JobCandidate,
-        on_delete=models.CASCADE,
-        related_name='jobcandidate_tracking'
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
 class UserNotificationConfiguration(models.Model):
 
     post_job_notification = models.BooleanField(default=False)
@@ -381,7 +360,7 @@ class ServiceBooking(models.Model):
 
     worktime = models.DateTimeField(null=True, blank=True)
     location = models.JSONField(blank=True, null=True)
-    services = models.ManyToManyField(CandidateService)
+    services = models.ManyToManyField(CandidateService,null=True)
     candidate = models.ForeignKey(
         CandidateUser,
         on_delete=models.CASCADE,
@@ -402,3 +381,37 @@ class ServiceBooking(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+
+
+
+
+class JobCandidateTracking(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT')
+    )
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    action_title = models.CharField(max_length=150, null=True)
+    action_content = models.CharField(max_length=255, null=True)
+
+    job_candidate = models.ForeignKey(
+        JobCandidate,
+        on_delete=models.CASCADE,
+        related_name='jobcandidate_tracking',
+        null=True,
+    )
+
+    service_booking = models.ForeignKey(
+        ServiceBooking,
+        on_delete=models.CASCADE,
+        related_name='service_booking_tracking',
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
