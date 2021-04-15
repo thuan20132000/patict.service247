@@ -35,7 +35,8 @@ from .api import (
     get_candidate_services,
     create_candidate_service,
     delete_candidate_service,
-    book_services
+    book_services,
+    get_candidate_orders,
 
     
 )
@@ -91,7 +92,8 @@ urlpatterns = [
     path('api/v1/candidate/<int:user_id>/services',get_candidate_services,name="get_candidate_services"),
     path('api/v1/candidate/<int:user_id>/service',create_candidate_service,name="create_candidate_service"),
     path('api/v1/candidate/<int:user_id>/service/<int:service_id>',delete_candidate_service,name='delete_candidate_service'),
-
+    path('api/v1/candidate/<int:user_id>/orders',get_candidate_orders,name="get_candidate_orders"),
+    
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 

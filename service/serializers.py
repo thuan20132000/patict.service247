@@ -309,3 +309,4 @@ class ServiceBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceBooking
         fields = '__all__'
+        depth  = 1

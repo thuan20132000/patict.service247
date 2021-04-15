@@ -10,7 +10,8 @@ from .models import (
     ServiceUser,
     Notification,
     UserNotificationConfiguration,
-    CandidateService
+    CandidateService,
+    ServiceBooking
 )
 
 from django.contrib.contenttypes.admin import GenericTabularInline, InlineModelAdmin
@@ -200,3 +201,8 @@ class AdminUserNotificationConfiguration(admin.ModelAdmin):
 class AdminCandidateService(admin.ModelAdmin):
     list_display = ['name','price','field','candidate','status']
     
+
+@admin.register(ServiceBooking)
+class AdminServiceBooking(admin.ModelAdmin):
+
+    list_display = ['candidate','user','total_price','payment','created_at']
