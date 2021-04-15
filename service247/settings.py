@@ -117,7 +117,7 @@ WSGI_APPLICATION = 'service247.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'service247_master',
+        'NAME': 'service247_master_v2',
         'USER':'thuantruong',
         'PASSWORD':'Thuan123',
         'HOST':'18.141.229.83',
