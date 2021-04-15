@@ -119,8 +119,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'service247_master_v2',
         'USER':'thuantruong',
+
         'PASSWORD':'Thuan123',
-        'HOST':'18.141.229.83',
+        'HOST':'127.0.0.1',
         'PORT':'5432',
     }
 }
