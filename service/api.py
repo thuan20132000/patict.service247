@@ -1576,22 +1576,23 @@ def update_booking(request,user_id,order_id,):
 
         data = request.data
 
-        order_status = data.get('order_status')
+        booking_status = data.get('booking_status')
+        booking_content = data.get('booking_content')
 
         with transaction.atomic():    
             user = ServiceUser.objects.get(pk=user_id)
             order = ServiceBooking.objects.get(pk=order_id)
-            order.status = order_status
+            order.status = booking_status
             order.save()
 
             trackking = JobCandidateTracking()
-            trackking.action_title  = order_status + " dịch vụ."
-            trackking.action_content = user.username + " đã " + order_status + " dịch vụ."
+            trackking.action_title  = booking_status + " dịch vụ."
+            trackking.action_content = user.username + " đã " + booking_content + " dịch vụ."
             trackking.service_booking = order
             trackking.save()
 
             order_detail_serializer = ServiceBookingSerializer(order).data
-            order_detail_tracking_serializer = JobCandidateTrackingSerializer(order.service_booking_tracking,many=True).data
+            order_detail_tracking_serializer = JobCandidateTrackingSerializer(order.service_booking_tracking.order_by('created_at'),many=True).data
 
 
             return Response({
