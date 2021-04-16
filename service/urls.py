@@ -36,7 +36,9 @@ from .api import (
     create_candidate_service,
     delete_candidate_service,
     book_services,
-    get_candidate_orders,
+    get_candidate_booking,
+    get_candidate_booking_detail,
+    update_booking,
 
     
 )
@@ -92,8 +94,15 @@ urlpatterns = [
     path('api/v1/candidate/<int:user_id>/services',get_candidate_services,name="get_candidate_services"),
     path('api/v1/candidate/<int:user_id>/service',create_candidate_service,name="create_candidate_service"),
     path('api/v1/candidate/<int:user_id>/service/<int:service_id>',delete_candidate_service,name='delete_candidate_service'),
-    path('api/v1/candidate/<int:user_id>/orders',get_candidate_orders,name="get_candidate_orders"),
-    
+    path('api/v1/candidate/<int:user_id>/booking',get_candidate_booking,name="get_candidate_booking"),
+    path('api/v1/candidate/<int:user_id>/booking/<int:order_id>',get_candidate_booking_detail,name="get_candidate_booking_detail"),
+
+
+
+    #order_booking
+    path('api/v1/user/<int:user_id>/booking/<int:order_id>/update',update_booking,name="update_booking"),
+
+
 
 ] + static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
 
