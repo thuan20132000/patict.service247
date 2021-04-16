@@ -351,7 +351,9 @@ class ServiceBooking(models.Model):
         ('published', 'PUBLISHED'),
         ('draft', 'DRAFT'),
         ('pending', 'PENDING'),
-        ('confirmed','CONFIRMED')
+        ('confirmed','CONFIRMED'),
+        ('approved','APPROVED'),
+        ('cancel','CANCEL'),
     )
 
     PAYMENT_METHODS = (

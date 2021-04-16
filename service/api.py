@@ -40,7 +40,8 @@ from .serializers import (
     NotificationSerializer,
     UserNotificationConfigurationSerializer,
     CandidateServiceSerializer,
-    ServiceBookingSerializer
+    ServiceBookingSerializer,
+    JobCandidateTrackingSerializer
 )
 
 import json
@@ -1506,7 +1507,7 @@ def book_services(request, user_id):
 
 
 @api_view(['GET'])
-def get_candidate_orders(request, user_id,):
+def get_candidate_booking(request, user_id,):
 
     try:
         candidate_order = ServiceBooking.objects.filter(
@@ -1524,6 +1525,87 @@ def get_candidate_orders(request, user_id,):
                 code=ErrorCode.GET_SUCCESS
             )
         )
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+
+@api_view(['GET'])
+def get_candidate_booking_detail(request,user_id,order_id,):
+
+    try:
+        order_detail  = ServiceBooking.objects.get(pk=order_id)
+
+        order_detail_serializer = ServiceBookingSerializer(order_detail).data
+        order_detail_tracking_serializer = JobCandidateTrackingSerializer(order_detail.service_booking_tracking,many=True).data
+
+
+        return Response({
+            "status": True,
+            "message": "get jobcandidate detail successfully",
+            "data": {
+                "order_info": order_detail_serializer,
+                "order_tracking": order_detail_tracking_serializer
+            },
+            "code": ErrorCode.GET_SUCCESS
+        })
+
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
+
+
+
+@api_view(['PUT'])
+def update_booking(request,user_id,order_id,):
+    try:
+
+        data = request.data
+
+        order_status = data.get('order_status')
+
+        with transaction.atomic():    
+            user = ServiceUser.objects.get(pk=user_id)
+            order = ServiceBooking.objects.get(pk=order_id)
+            order.status = order_status
+            order.save()
+
+            trackking = JobCandidateTracking()
+            trackking.action_title  = order_status + " dịch vụ."
+            trackking.action_content = user.username + " đã " + order_status + " dịch vụ."
+            trackking.service_booking = order
+            trackking.save()
+
+            order_detail_serializer = ServiceBookingSerializer(order).data
+            order_detail_tracking_serializer = JobCandidateTrackingSerializer(order.service_booking_tracking,many=True).data
+
+
+            return Response({
+                "status": True,
+                "message": "Update service successfully",
+                "data": {
+                    "order_info": order_detail_serializer,
+                    "order_tracking": order_detail_tracking_serializer
+                },
+                "code": ErrorCode.GET_SUCCESS
+            })
+
+
+
 
     except Exception as e:
         message = f'Error: {e}'
