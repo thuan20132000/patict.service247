@@ -1460,6 +1460,8 @@ def book_services(request, user_id):
             'total_price': total_price
         })
 
+        service_user = ServiceUser.objects.get(pk=user_id)
+        candidate = ServiceUser.objects.get(pk=candidate_id)
         if serializer.is_valid():
             # print('valid')
             # serializer.save()
@@ -1478,6 +1480,40 @@ def book_services(request, user_id):
                     service_booking.user.username)
                 job_trackking.service_booking = service_booking
                 job_trackking.save()
+
+                # print('service: ',service_booking.services.all()[0].name)
+                # print(x.name for x in  service_booking.services.all())
+
+                service_summary = "Khách hàng "+ service_user.username +" yêu cầu dịch vụ: "
+                for x in service_booking.services.all():
+                    service_summary += "{0}, ".format(x.name)
+                
+                notification_title = "{0} đã gửi yêu cầu dịch vụ ".format(service_user.username)
+                notification_body = service_summary
+
+                # print('test: ',notification_body)
+
+                notification = Notification(title=notification_title,body=notification_body)
+                notification.send_to_one(candidate.notification_token)
+
+                notification_model = NotificationModel()
+                notification_model.title = notification_title
+                notification_model.content = notification_body
+                notification_model.booking = service_booking
+                notification_model.user_id = candidate_id
+                notification_model.save()
+
+                notification_user = NotificationModel()
+                notification_user.title = notification_title
+                notification_user.content = notification_body
+                notification_user.booking = service_booking
+                notification_user.user_id = user_id
+                notification_user.save()
+
+
+                
+
+
 
             return Response({
                 "status": True,
