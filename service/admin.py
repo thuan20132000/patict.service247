@@ -168,7 +168,7 @@ class UserJob(admin.AdminSite):
 @admin.register(ServiceUser)
 class AdminServiceUser(admin.ModelAdmin):
     list_display = ('username', 'phonenumber',
-                    'status', 'gender', 'created_at')
+                    'status', 'gender', 'created_at','notification_token')
 
     list_filter = ('gender', 'status', 'candidate_user__fields')
 

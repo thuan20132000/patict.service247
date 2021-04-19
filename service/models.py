@@ -91,6 +91,62 @@ class Field(models.Model):
         return self.name
 
 
+class CandidateUser(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT'),
+    )
+    is_candidate = models.BooleanField(default=False)
+    category = models.ManyToManyField(Category, blank=True, null=True)
+    fields = models.ManyToManyField(Field, blank=True, null=True)
+    location = models.JSONField(blank=True, null=True)
+    descriptions = models.TextField(blank=True, null=True, default=None)
+
+    user = models.OneToOneField(
+        ServiceUser,
+        related_name="candidate_user",
+        on_delete=models.CASCADE,
+        primary_key=True,
+        unique=True
+    )
+
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    def __str__(self,):
+
+        return f"candidate_user {self.user}"
+
+
+class CandidateService(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT'),
+        ('pending', 'PENDING'),
+    )
+    name = models.CharField(max_length=250)
+    price = models.DecimalField(max_digits=18, decimal_places=2, null=True)
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    field = models.ForeignKey(
+        Field,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="candidate_service_field"
+    )
+
+    candidate = models.ForeignKey(
+        CandidateUser,
+        on_delete=models.CASCADE,
+        related_name="candidate_service_candidate"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+
 class Job(models.Model):
     STATUS_CHOICE = (
         ('published', 'PUBLISHED'),
@@ -172,6 +228,46 @@ class JobCandidate(models.Model):
         return "Job candidate"
 
 
+
+class ServiceBooking(models.Model):
+    STATUS_CHOICE = (
+        ('published', 'PUBLISHED'),
+        ('draft', 'DRAFT'),
+        ('pending', 'PENDING'),
+        ('confirmed','CONFIRMED'),
+        ('approved','APPROVED'),
+        ('cancel','CANCEL'),
+    )
+
+    PAYMENT_METHODS = (
+        ('cash', 'CASH'),
+    )
+
+    worktime = models.DateTimeField(null=True, blank=True)
+    location = models.JSONField(blank=True, null=True)
+    services = models.ManyToManyField(CandidateService,null=True)
+    candidate = models.ForeignKey(
+        CandidateUser,
+        on_delete=models.CASCADE,
+        related_name="service_booking_candidate"
+    )
+    user = models.ForeignKey(
+        ServiceUser,
+        on_delete=models.CASCADE,
+        related_name="service_booking_user"
+    )
+    payment = models.CharField(
+        max_length=60, choices=PAYMENT_METHODS, default='cash')
+
+    total_price = models.DecimalField(max_digits=18,decimal_places=2)
+    
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICE, default='published')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Review(models.Model):
 
     STATUS_CHOICE = (
@@ -199,31 +295,6 @@ class Review(models.Model):
         return self.review_content
 
 
-class CandidateUser(models.Model):
-    STATUS_CHOICE = (
-        ('published', 'PUBLISHED'),
-        ('draft', 'DRAFT'),
-    )
-    is_candidate = models.BooleanField(default=False)
-    category = models.ManyToManyField(Category, blank=True, null=True)
-    fields = models.ManyToManyField(Field, blank=True, null=True)
-    location = models.JSONField(blank=True, null=True)
-    descriptions = models.TextField(blank=True, null=True, default=None)
-
-    user = models.OneToOneField(
-        ServiceUser,
-        related_name="candidate_user",
-        on_delete=models.CASCADE,
-        primary_key=True,
-        unique=True
-    )
-
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICE, default='published')
-
-    def __str__(self,):
-
-        return f"candidate_user {self.user}"
 
 
 class Image(models.Model):
@@ -294,6 +365,14 @@ class Notification(models.Model):
         null=True,
         related_name='jobcandidate_notification'
     )
+
+    booking = models.ForeignKey(
+        ServiceBooking,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='booking_notification'
+    )
+
     userconnection_id = models.UUIDField(null=True, editable=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -317,72 +396,6 @@ class UserNotificationConfiguration(models.Model):
         related_name="user_notification_config"
     )
 
-
-class CandidateService(models.Model):
-    STATUS_CHOICE = (
-        ('published', 'PUBLISHED'),
-        ('draft', 'DRAFT'),
-        ('pending', 'PENDING'),
-    )
-    name = models.CharField(max_length=250)
-    price = models.DecimalField(max_digits=18, decimal_places=2, null=True)
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICE, default='published')
-
-    field = models.ForeignKey(
-        Field,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="candidate_service_field"
-    )
-
-    candidate = models.ForeignKey(
-        CandidateUser,
-        on_delete=models.CASCADE,
-        related_name="candidate_service_candidate"
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
-class ServiceBooking(models.Model):
-    STATUS_CHOICE = (
-        ('published', 'PUBLISHED'),
-        ('draft', 'DRAFT'),
-        ('pending', 'PENDING'),
-        ('confirmed','CONFIRMED'),
-        ('approved','APPROVED'),
-        ('cancel','CANCEL'),
-    )
-
-    PAYMENT_METHODS = (
-        ('cash', 'CASH'),
-    )
-
-    worktime = models.DateTimeField(null=True, blank=True)
-    location = models.JSONField(blank=True, null=True)
-    services = models.ManyToManyField(CandidateService,null=True)
-    candidate = models.ForeignKey(
-        CandidateUser,
-        on_delete=models.CASCADE,
-        related_name="service_booking_candidate"
-    )
-    user = models.ForeignKey(
-        ServiceUser,
-        on_delete=models.CASCADE,
-        related_name="service_booking_user"
-    )
-    payment = models.CharField(
-        max_length=60, choices=PAYMENT_METHODS, default='cash')
-
-    total_price = models.DecimalField(max_digits=18,decimal_places=2)
-    
-    status = models.CharField(
-        max_length=10, choices=STATUS_CHOICE, default='published')
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
 
 
