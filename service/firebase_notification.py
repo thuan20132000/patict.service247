@@ -54,7 +54,7 @@ class Notification(NotificationConfiguration):
         # Response is a message ID string.
         print('Successfully sent message:', response)
 
-    def send_to_one(self, device_token):
+    def send_to_one(self, device_token,booking_id):
 
 
         try:
@@ -65,7 +65,10 @@ class Notification(NotificationConfiguration):
                     body=self.body,
                     image=self.image,
                 ),
-                token=device_token
+                token=device_token,
+                data={
+                    'booking_id': '%s'%booking_id
+                }
             )
 
             # Send a message to the device corresponding to the provided
