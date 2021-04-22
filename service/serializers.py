@@ -40,7 +40,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_review_author(self, obj):
-        return UserSerializer(obj.job_candidate.job.author).data
+        if hasattr(obj, 'candidate_user'):
+            return UserSerializer(obj.job_candidate.job.author).data
+        return None
 
 
 class UserSingupSerializer(serializers.ModelSerializer):

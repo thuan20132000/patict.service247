@@ -66,7 +66,7 @@ from local_env.config import SERVER_PATH
 
 import time
 import concurrent
-
+from django.db.models import Q
 log = Log()
 
 
@@ -1075,9 +1075,13 @@ def get_candidate_review_api(request, user_id):
         if page_limit is not None:
             paginator.page_size = int(page_limit)
 
-        reviews = Review.objects.filter(
-            job_candidate__candidate_id=user_id).order_by('-updated_at').all()
+        # reviews = Review.objects.filter(
+        #     job_candidate__candidate_id=user_id).__or__.filter(service_booking__candidate_id=user_id).order_by('-updated_at').all()
 
+        query = Q(job_candidate__candidate_id=user_id)
+        query.add(Q(service_booking__candidate_id=user_id),Q.OR)
+
+        reviews = Review.objects.filter(query).order_by('-updated_at').all()
         context = paginator.paginate_queryset(reviews, request)
         serializer = ReviewSerializer(context, many=True)
 
