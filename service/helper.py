@@ -170,7 +170,7 @@ class ValidationInput:
 
     def is_valid(self,):
         for x in self.input_data:
-            if x is None or len(x) < 10:
+            if x is None or x == "":
                 return False
         return True
 

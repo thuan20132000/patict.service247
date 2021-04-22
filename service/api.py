@@ -1484,17 +1484,20 @@ def book_services(request, user_id):
                 # print('service: ',service_booking.services.all()[0].name)
                 # print(x.name for x in  service_booking.services.all())
 
-                service_summary = "Khách hàng "+ service_user.username +" yêu cầu dịch vụ: "
+                service_summary = "Khách hàng " + service_user.username + " yêu cầu dịch vụ: "
                 for x in service_booking.services.all():
                     service_summary += "{0}, ".format(x.name)
-                
-                notification_title = "{0} đã gửi yêu cầu dịch vụ ".format(service_user.username)
+
+                notification_title = "{0} đã gửi yêu cầu dịch vụ ".format(
+                    service_user.username)
                 notification_body = service_summary
 
                 # print('test: ',notification_body)
 
-                notification = Notification(title=notification_title,body=notification_body)
-                notification.send_to_one(candidate.notification_token)
+                notification = Notification(
+                    title=notification_title, body=notification_body)
+                notification.send_to_one(
+                    candidate.notification_token, service_booking.id)
 
                 notification_model = NotificationModel()
                 notification_model.title = notification_title
@@ -1509,11 +1512,6 @@ def book_services(request, user_id):
                 notification_user.booking = service_booking
                 notification_user.user_id = user_id
                 notification_user.save()
-
-
-                
-
-
 
             return Response({
                 "status": True,
@@ -1573,16 +1571,15 @@ def get_candidate_booking(request, user_id,):
         })
 
 
-
 @api_view(['GET'])
-def get_candidate_booking_detail(request,user_id,order_id,):
+def get_candidate_booking_detail(request, user_id, order_id,):
 
     try:
-        order_detail  = ServiceBooking.objects.get(pk=order_id)
+        order_detail = ServiceBooking.objects.get(pk=order_id)
 
         order_detail_serializer = ServiceBookingSerializer(order_detail).data
-        order_detail_tracking_serializer = JobCandidateTrackingSerializer(order_detail.service_booking_tracking,many=True).data
-
+        order_detail_tracking_serializer = JobCandidateTrackingSerializer(
+            order_detail.service_booking_tracking, many=True).data
 
         return Response({
             "status": True,
@@ -1605,31 +1602,81 @@ def get_candidate_booking_detail(request,user_id,order_id,):
         })
 
 
-
 @api_view(['PUT'])
-def update_booking(request,user_id,order_id,):
+def update_booking(request, user_id, booking_id,):
     try:
 
         data = request.data
 
         booking_status = data.get('booking_status')
+        booking_title = data.get('booking_title')
         booking_content = data.get('booking_content')
 
-        with transaction.atomic():    
+        validate_data = ValidationInput(
+            booking_status, booking_title, booking_content)
+
+        if validate_data.is_valid() is False:
+            return Response({
+                "status": False,
+                "message": "Update service failed",
+                "data": None,
+                "code": ErrorCode.VALIDATION
+            })
+
+        with transaction.atomic():
             user = ServiceUser.objects.get(pk=user_id)
-            order = ServiceBooking.objects.get(pk=order_id)
+
+            order = ServiceBooking.objects.get(pk=booking_id)
             order.status = booking_status
             order.save()
 
-            trackking = JobCandidateTracking()
-            trackking.action_title  = booking_status + " dịch vụ."
-            trackking.action_content = user.username + " đã " + booking_content + " dịch vụ."
-            trackking.service_booking = order
-            trackking.save()
+            # Check if order is customer or candidate
+
+            # if update by customer
+            if user_id == order.user_id:
+
+                trackking = JobCandidateTracking()
+                trackking.action_title = booking_title
+                trackking.action_content = order.user.username + \
+                    " đã " + booking_content + " dịch vụ."
+                trackking.service_booking = order
+                trackking.save()
+
+                notification = Notification(booking_title, booking_content)
+                notification.send_to_one(
+                    order.candidate.user.notification_token, order.id)
+
+                notification_model = NotificationModel()
+                notification_model.title = booking_title
+                notification_model.content = booking_content
+                notification_model.booking_id = order.pk
+                notification_model.user_id = user_id
+                notification_model.save()
+
+            # if update by candidate
+            elif user_id == order.candidate_id:
+
+                trackking = JobCandidateTracking()
+                trackking.action_title = booking_title
+                trackking.action_content = order.candidate.user.username + \
+                    " đã " + booking_content + " dịch vụ."
+                trackking.service_booking = order
+                trackking.save()
+
+                notification = Notification(booking_title, booking_content)
+                notification.send_to_one(
+                    order.user.notification_token, order.id)
+
+                notification_model = NotificationModel()
+                notification_model.title = booking_title
+                notification_model.content = booking_content
+                notification_model.booking_id = order.pk
+                notification_model.user_id = order.user_id
+                notification_model.save()
 
             order_detail_serializer = ServiceBookingSerializer(order).data
-            order_detail_tracking_serializer = JobCandidateTrackingSerializer(order.service_booking_tracking.order_by('created_at'),many=True).data
-
+            order_detail_tracking_serializer = JobCandidateTrackingSerializer(
+                order.service_booking_tracking.order_by('created_at'), many=True).data
 
             return Response({
                 "status": True,
@@ -1641,8 +1688,83 @@ def update_booking(request,user_id,order_id,):
                 "code": ErrorCode.GET_SUCCESS
             })
 
+    except Exception as e:
+        message = f'Error: {e}'
+        log.log_message(message)
+        return Response({
+            "status": False,
+            "data": None,
+            "message": message,
+            "code": ErrorCode.UNDEFINED
+        })
 
 
+@api_view(['POST'])
+def create_confirm_booking_review(request, user_id, booking_id):
+    try:
+        data = request.data
+
+        booking_status = data.get('booking_status')
+        booking_title = data.get('booking_title')
+        booking_content = data.get('booking_content')
+        review_level = data.get('review_level')
+        review_content = data.get('review_content')
+
+        validate_data = ValidationInput(
+            booking_status, booking_title, booking_content, review_level, review_content)
+
+        if validate_data.is_valid() is False:
+            return Response({
+                "status": False,
+                "message": "Confirm failed",
+                "data": None,
+                "code": ErrorCode.VALIDATION
+            })
+
+        with transaction.atomic():
+            user = ServiceUser.objects.get(pk=user_id)
+
+            service_booking_review = Review()
+            service_booking_review.review_content = review_content
+            service_booking_review.review_level = review_level
+            service_booking_review.service_booking_id = booking_id
+            service_booking_review.save()
+
+            service_booking = ServiceBooking.objects.get(pk=booking_id)
+            service_booking.status = "confirmed"
+            service_booking.save()
+
+            notification_title = "{0} đã xác nhận và đánh giá dịch vụ ".format(
+                user.username)
+            notification_body = "Khách hàng {0} đã đánh giá {1} sao cho dịch vụ của bạn \n nội dung: {2} ".format(
+                user.username, review_level, review_content)
+
+            notification = Notification(
+                title=notification_title, body=notification_body)
+            notification.send_to_one(
+                service_booking.candidate.user.notification_token,booking_id)
+
+            notificagion_model = NotificationModel()
+            notificagion_model.title = notification_title
+            notificagion_model.content = notification_body
+            notificagion_model.booking = service_booking
+            notificagion_model.user_id = service_booking.candidate.user_id
+            notificagion_model.save()
+
+            trackking = JobCandidateTracking()
+            trackking.action_title = booking_title
+            trackking.action_content = booking_content
+            trackking.service_booking = service_booking
+            trackking.save()
+
+            serializer = ServiceBookingSerializer(service_booking).data
+
+            return Response({
+                "status": True,
+                "message": "Comfirm Booking successgully",
+                "data": serializer,
+                "code": ErrorCode.GET_SUCCESS
+            })
 
     except Exception as e:
         message = f'Error: {e}'

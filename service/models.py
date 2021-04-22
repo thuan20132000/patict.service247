@@ -237,6 +237,9 @@ class ServiceBooking(models.Model):
         ('confirmed','CONFIRMED'),
         ('approved','APPROVED'),
         ('cancel','CANCEL'),
+        ('waiting_approve','Waiting Approve'),
+        ('denied','Denied'),
+        ('request_confirm','Request Confirm'),
     )
 
     PAYMENT_METHODS = (
@@ -262,7 +265,7 @@ class ServiceBooking(models.Model):
     total_price = models.DecimalField(max_digits=18,decimal_places=2)
     
     status = models.CharField(
-        max_length=10, choices=STATUS_CHOICE, default='published')
+        max_length=50, choices=STATUS_CHOICE, default='published')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -284,6 +287,14 @@ class Review(models.Model):
         on_delete=models.CASCADE,
         related_name='reviews',
         null=True
+    )
+
+    service_booking = models.ForeignKey(
+        ServiceBooking,
+        on_delete=models.CASCADE,
+        related_name='service_booking_review',
+        null=True,
+        blank=True   
     )
 
     status = models.CharField(

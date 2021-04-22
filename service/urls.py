@@ -39,6 +39,7 @@ from .api import (
     get_candidate_booking,
     get_candidate_booking_detail,
     update_booking,
+    create_confirm_booking_review,
 
     
 )
@@ -100,7 +101,8 @@ urlpatterns = [
 
 
     #order_booking
-    path('api/v1/user/<int:user_id>/booking/<int:order_id>/update',update_booking,name="update_booking"),
+    path('api/v1/user/<int:user_id>/booking/<int:booking_id>/update',update_booking,name="update_booking"),
+    path('api/v1/user/<int:user_id>/booking/<int:booking_id>/confirm',create_confirm_booking_review,name="create_confirm_booking_review"),
 
 
 
